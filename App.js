@@ -19,6 +19,7 @@ import GroceryScreen from './src/screens/GroceryScreen';
 import SavedScreen from './src/screens/SavedScreen';
 import RecipeDetailModal from './src/screens/RecipeDetailModal';
 import CookingFocusModal from './src/screens/CookingFocusModal';
+import ChefAssistantModal from './src/screens/ChefAssistantModal';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('home'); // 'home' | 'grocery' | 'extractor' | 'saved'
@@ -27,6 +28,8 @@ export default function App() {
   const [groceryList, setGroceryList] = useState([]);
   const [detailRecipe, setDetailRecipe] = useState(null);
   const [cookingRecipe, setCookingRecipe] = useState(null);
+  const [chefModalVisible, setChefModalVisible] = useState(false);
+  const [chefContextRecipe, setChefContextRecipe] = useState(null);
 
   // Load offline data on startup
   useEffect(() => {
@@ -76,6 +79,10 @@ export default function App() {
             onSelectRecipe={setDetailRecipe}
             onToggleFavorite={handleToggleFavorite}
             onAddToGrocery={handleAddToGrocery}
+            onOpenChef={() => {
+              setChefContextRecipe(null);
+              setChefModalVisible(true);
+            }}
           />
         );
       case 'grocery':
@@ -197,15 +204,21 @@ export default function App() {
           style={styles.navTab}
           onPress={() => {
             HapticService.light();
-            setCurrentTab('home');
+        {/* AI Chef Assistant Tab */}
+        <TouchableOpacity
+          style={styles.navTab}
+          onPress={() => {
+            HapticService.heavy();
+            setChefContextRecipe(null);
+            setChefModalVisible(true);
           }}
         >
           <Ionicons
-            name="flame-outline"
+            name="chatbubble-ellipses-outline"
             size={22}
-            color={Colors.textMuted}
+            color={Colors.accentCitrus}
           />
-          <Text style={styles.navText}>Macros</Text>
+          <Text style={[styles.navText, { color: Colors.accentCitrus }]}>AI Chef</Text>
         </TouchableOpacity>
       </View>
 
@@ -221,6 +234,10 @@ export default function App() {
           setDetailRecipe(null);
           setCookingRecipe(recipe);
         }}
+        onAskChef={(recipe) => {
+          setChefContextRecipe(recipe);
+          setChefModalVisible(true);
+        }}
       />
 
       {/* Full-Screen Step-by-Step Cooking Focus Modal */}
@@ -228,6 +245,13 @@ export default function App() {
         visible={!!cookingRecipe}
         recipe={cookingRecipe}
         onClose={() => setCookingRecipe(null)}
+      />
+
+      {/* Groq Cloud AI Chef Assistant Modal */}
+      <ChefAssistantModal
+        visible={chefModalVisible}
+        recipe={chefContextRecipe}
+        onClose={() => setChefModalVisible(false)}
       />
     </View>
   );

@@ -20,7 +20,8 @@ export default function HomeScreen({
   favorites,
   onSelectRecipe,
   onToggleFavorite,
-  onAddToGrocery
+  onAddToGrocery,
+  onOpenChef
 }) {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -88,9 +89,17 @@ export default function HomeScreen({
             <Text style={styles.greetingSub}>{greeting}</Text>
             <Text style={styles.greetingMain}>What's Cooking?</Text>
           </View>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>FC</Text>
-          </View>
+          <TouchableOpacity
+            style={styles.chefHeaderBtn}
+            activeOpacity={0.85}
+            onPress={() => {
+              HapticService.heavy();
+              onOpenChef && onOpenChef();
+            }}
+          >
+            <Ionicons name="sparkles" size={13} color={Colors.accentCitrus} />
+            <Text style={styles.chefHeaderBtnText}>Ask AI Chef</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Minimalist Search Bar */}
@@ -241,6 +250,22 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderSubtle,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  chefHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(212, 255, 0, 0.12)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 255, 0, 0.35)',
+  },
+  chefHeaderBtnText: {
+    color: Colors.accentCitrus,
+    fontSize: 12,
+    fontWeight: '800',
   },
   avatarText: {
     color: Colors.accentCitrus,

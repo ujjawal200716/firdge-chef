@@ -20,7 +20,8 @@ export default function RecipeDetailModal({
   onClose,
   onToggleFavorite,
   onAddToGrocery,
-  onStartCooking
+  onStartCooking,
+  onAskChef
 }) {
   if (!recipe) return null;
 
@@ -132,6 +133,24 @@ export default function RecipeDetailModal({
                 ))}
               </View>
             </View>
+
+            {/* Ask Chef Auguste (Groq AI) */}
+            <TouchableOpacity
+              style={styles.askChefCard}
+              activeOpacity={0.85}
+              onPress={() => onAskChef(recipe)}
+            >
+              <View style={styles.askChefCardLeft}>
+                <View style={styles.askChefAvatar}>
+                  <Ionicons name="restaurant" size={16} color={Colors.accentCitrus} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.askChefCardTitle}>Have questions about this recipe?</Text>
+                  <Text style={styles.askChefCardSub}>Ask Chef Auguste (Groq Cloud) for substitutions & tips</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={Colors.accentCitrus} />
+            </TouchableOpacity>
 
             {/* Ingredients Checklist */}
             <View style={styles.sectionHeader}>
@@ -356,6 +375,42 @@ const styles = StyleSheet.create({
   servBtnTextActive: {
     color: Colors.textInverse,
     fontWeight: '900',
+  },
+  askChefCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(212, 255, 0, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 255, 0, 0.25)',
+    borderRadius: Radius.lg,
+    padding: 14,
+    marginBottom: 18,
+  },
+  askChefCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  askChefAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: Colors.bgCard,
+    borderWidth: 1,
+    borderColor: Colors.accentCitrus,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  askChefCardTitle: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  askChefCardSub: {
+    color: Colors.textSecondary,
+    fontSize: 11,
   },
   sectionHeader: {
     flexDirection: 'row',

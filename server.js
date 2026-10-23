@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -416,6 +417,83 @@ Return ONLY raw, valid JSON (no markdown formatting, no code fences, no extra te
     } catch (err) {
         console.error("Magic Extractor Error:", err);
         res.status(500).json({ error: "Failed to extract recipe: " + err.message });
+    }
+});
+
+// 🤖 GROQ CLOUD CHEF ASSISTANT (Answers any culinary question)
+app.post('/api/ask-chef', async (req, res) => {
+    try {
+        const { question, recipeTitle, ingredients } = req.body;
+        if (!question) return res.status(400).json({ error: "No question provided" });
+        console.log("👨‍🍳 Groq Chef Question:", question);
+
+        let contextPrompt = "";
+        if (recipeTitle) {
+            contextPrompt = `\nThe user is currently cooking or viewing this dish: "${recipeTitle}".`;
+            if (ingredients && ingredients.length > 0) {
+                const ingStr = Array.isArray(ingredients) 
+                    ? ingredients.map(i => (typeof i === 'object' ? `${i.amount || ''} ${i.item || ''}` : i)).join(', ')
+                    : ingredients;
+                contextPrompt += ` Ingredients list: ${ingStr}.`;
+            }
+        }
+
+        const messages = [
+            {
+                role: "system",
+                content: `You are Chef Auguste, an elite master chef and friendly AI culinary advisor for the FridgeChef mobile app powered by Groq Cloud.
+Provide helpful, concise, mouth-watering cooking advice.
+Guidelines:
+- Answer directly and with culinary precision.
+- For ingredient substitutions, specify exact ratio, flavor difference, and texture impact.
+- For techniques, give actionable pro-tips.
+- If user asks what to cook with ingredients, give 2 creative dish ideas.
+- Format with short bullet points and emojis for easy reading on mobile screens.`
+            },
+            {
+                role: "user",
+                content: `${contextPrompt}\n\nQuestion: ${question}`
+            }
+        ];
+
+        const completion = await groq.chat.completions.create({
+            messages,
+            model: "openai/gpt-oss-120b",
+            temperature: 0.6,
+            max_tokens: 500
+        });
+
+        const answer = completion.choices[0]?.message?.content || "I am currently adjusting my kitchen timers. Please try asking again!";
+        res.json({ success: true, answer, question });
+    } catch (err) {
+        console.error("Groq Ask Chef Error:", err);
+        res.status(500).json({ error: "Failed to answer question: " + err.message });
+    }
+});
+
+// 🖼️ RECIPE IMAGE API (Fetches real food photos via Wikipedia PageImages & Unsplash)
+app.get('/api/recipe-image', async (req, res) => {
+    try {
+        const query = req.query.query || 'gourmet food';
+        const defaultImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
+
+        const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=800&origin=*&titles=${encodeURIComponent(query)}`;
+        const response = await fetch(wikiUrl);
+        const data = await response.json();
+        const pages = data.query?.pages;
+
+        let imageUrl = defaultImage;
+        if (pages) {
+            const pageId = Object.keys(pages)[0];
+            if (pageId !== "-1" && pages[pageId].thumbnail?.source) {
+                imageUrl = pages[pageId].thumbnail.source;
+            }
+        }
+
+        res.json({ query, imageUrl, success: true });
+    } catch (err) {
+        console.error("Recipe Image Error:", err);
+        res.json({ query: req.query.query, imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80', success: false });
     }
 });
 
