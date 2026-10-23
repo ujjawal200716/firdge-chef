@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Recipes - Fridge Planner</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* =========================================
+           1. PREMIUM THEME VARIABLES
+           ========================================= */
+        :root {
+            --bg-base: #fdfbf7;
+            --bg-gradient-1: #fae3d9;
+            --bg-gradient-2: #ffd1d1;
+            
+            --primary-rose: #bf6b7a;       
+            --primary-rose-hover: #a6505f; 
+            --primary-rose-light: #fff0f3;
+            
+            --accent-green: #2ecc71;       
+            --accent-green-dark: #27ae60;
+            --accent-green-light: #e8f8f0;
+            
+            --dried-thyme: #6B7556; 
+
+            --text-dark: #1e272e;
+            --text-muted: #636E72;
+            
+            --bg-card: #FFFFFF;
+            --radius-card: 24px; 
+            --radius-pill: 50px;
+            
+            --shadow-subtle: 0 10px 40px -10px rgba(191, 107, 122, 0.1);
+            --shadow-float: 0 20px 50px -12px rgba(191, 107, 122, 0.25);
+            --shadow-nav: 0 4px 20px rgba(0, 0, 0, 0.04);
+            
+            --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, var(--bg-gradient-1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, var(--bg-gradient-2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, var(--bg-gradient-1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-bottom: 80px; /* Space for mobile scrolling */
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+        .hidden { display: none !important; }
+
+        /* =========================================
+           2. PREMIUM NAVBAR (Exact Match)
+           ========================================= */
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 2000;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-nav);
+            border-bottom: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .header-container {
+            max-width: 1400px; margin: 0 auto; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; transition: transform 0.3s; flex-shrink: 0; }
+        .logo:hover { transform: scale(1.05); }
+        .logo img {
+            border-radius: 50%; border: 3px solid white;
+            padding: 0; background: white;
+            box-shadow: 0 4px 10px rgba(191, 107, 122, 0.2);
+        }
+        .logo h1 { 
+            font-size: 1.5rem; color: var(--text-dark); font-weight: 800; letter-spacing: -0.5px; 
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary-rose) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .main-nav ul { display: flex; gap: 2.5rem; align-items: center; } 
+        
+        .main-nav a:not(.btn-primary) {
+            color: var(--text-dark); font-weight: 600; font-size: 0.95rem;
+            padding: 0.5rem 0; position: relative; opacity: 0.7; transition: 0.3s;
+        }
+        .main-nav a:not(.btn-primary):hover, .main-nav a.active { opacity: 1; color: var(--primary-rose); }
+        .main-nav a:not(.btn-primary)::after {
+            content: ''; position: absolute; bottom: -2px; left: 0;
+            width: 0%; height: 2px; background: var(--primary-rose);
+            border-radius: 2px; transition: 0.3s ease;
+        }
+        .main-nav a:not(.btn-primary):hover::after, .main-nav a.active::after { width: 100%; }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary-rose); color: white; border: none;
+            padding: 12px 28px; border-radius: var(--radius-pill);
+            cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(191, 107, 122, 0.3);
+            transition: var(--transition-bounce);
+            font-size: 0.9rem; position: relative; overflow: hidden;
+        }
+        .btn-primary:hover {
+            background: var(--primary-rose-hover); transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(191, 107, 122, 0.4);
+        }
+        .small-btn { padding: 10px 24px; font-size: 0.9rem; }
+
+        /* Profile Dropdown */
+        .profile-menu { position: relative; z-index: 2001; }
+        .profile-btn {
+            background: white; border: 1px solid rgba(0,0,0,0.08); cursor: pointer;
+            padding: 4px 16px 4px 4px; border-radius: 50px;
+            display: flex; align-items: center; gap: 10px; font-weight: 600;
+            transition: 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .profile-btn:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .profile-initials {
+            width: 34px; height: 34px; border-radius: 50%; 
+            background: var(--primary-rose); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem;
+        }
+
+        .dropdown-content {
+            display: none; position: absolute; right: 0; top: 125%; margin-top: 10px;
+            background: white; min-width: 240px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            z-index: 9999; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden; 
+        }
+        .dropdown-content.show { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUpMobile { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .dropdown-header { padding: 16px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .user-email { font-size: 0.85rem; color: #666; font-weight: 500; }
+        .dropdown-content a { color: #444; padding: 14px 20px; display: flex; gap: 10px; align-items: center; transition: 0.2s; font-size: 0.9rem; font-weight: 500; }
+        .dropdown-content a:hover { background: #fff0f3; color: var(--primary-rose); padding-left: 24px; }
+
+        /* ================= SEARCH PAGE CONTENT ================= */
+        main { max-width: 1400px; margin: 0 auto; padding-bottom: 4rem; }
+        
+        .search-hero { text-align: center; margin-top: 4rem; margin-bottom: 4rem; padding: 0 2rem; }
+        .search-hero h2 { font-size: 3rem; color: var(--text-dark); margin-bottom: 1rem; font-weight: 800; }
+        .search-hero h2 span { color: var(--primary-rose); }
+        .search-hero p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+
+        .search-container {
+            max-width: 700px; margin: 0 auto; background: var(--bg-card);
+            padding: 10px; border-radius: 50px; box-shadow: var(--shadow-float);
+            display: flex; gap: 10px; border: 1px solid rgba(255,255,255,0.8);
+        }
+        .search-input {
+            flex: 1; border: none; background: transparent; padding: 1rem 1.5rem;
+            font-size: 1.1rem; outline: none; color: var(--text-dark);
+        }
+
+        .ingredient-input-container {
+            max-width: 700px; margin: 0 auto; background: var(--bg-card);
+            padding: 10px; border-radius: 50px; box-shadow: var(--shadow-float);
+            display: flex; gap: 10px; border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .results-section { margin: 2rem auto; padding: 0 2rem; }
+        .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; max-width: 900px; margin-left: auto; margin-right: auto; }
+        
+        .inventory-container {
+            display: flex; flex-direction: column; gap: 2rem;
+            max-width: 900px; margin: 0 auto;
+        }
+
+        .added-ingredients-area {
+            max-width: 800px; margin: 2rem auto; min-height: 60px;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+        }
+
+        .ingredient-tag {
+            background: white; border: 1px solid #eee; color: var(--dried-thyme);
+            padding: 8px 18px; border-radius: 30px; font-weight: 600; 
+            display: flex; align-items: center; gap: 8px; animation: popIn 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .tag-remove { cursor: pointer; color: var(--primary-rose); font-size: 1.1rem; }
+        .tag-remove:hover { color: red; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Recipe Card */
+        .recipe-card {
+            background: white; border-radius: 20px; overflow: hidden;
+            box-shadow: var(--shadow-subtle); transition: var(--transition-bounce);
+            display: flex; flex-direction: row; cursor: pointer; min-height: 220px;
+        }
+        .recipe-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-float); }
+        .recipe-img { 
+            width: 35%; min-width: 250px; height: auto; object-fit: cover; 
+            transition: var(--transition-bounce); background-color: #eee; 
+        }
+        .recipe-card:hover .recipe-img { transform: scale(1.02); }
+
+        .recipe-details { padding: 2rem; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .recipe-details h4 { margin: 0 0 10px 0; color: var(--text-dark); font-size: 1.4rem; font-weight: 800; }
+        .recipe-desc { color: var(--text-muted); font-size: 1rem; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .recipe-meta {
+            display: flex; justify-content: space-between; color: var(--text-muted);
+            font-size: 0.9rem; font-weight: 600; margin-top: auto; padding-top: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Modal */
+        #recipeCardWrapper {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(30, 39, 46, 0.6); backdrop-filter: blur(12px);
+            z-index: 2000; justify-content: center; align-items: center; padding: 1rem;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        #recipeCardWrapper.open { opacity: 1; }
+
+        .modal-card {
+            background: rgba(255, 255, 255, 0.95); width: 100%; max-width: 900px; max-height: 90vh;
+            border-radius: 24px; overflow-y: auto; position: relative;
+        }
+        .modal-header-img { width: 100%; height: 300px; object-fit: cover; background-color: #eee; }
+        .modal-content { padding: 2.5rem; }
+        
+        .modal-close-btn {
+            position: absolute; top: 20px; right: 20px; background: white; border: none;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tag-pill { background: var(--primary-rose-light); color: var(--primary-rose); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        
+        .instruction-step {
+            background: var(--bg-base); padding: 20px; margin-bottom: 20px;
+            border-left: 5px solid var(--primary-rose); border-radius: 0 15px 15px 0;
+            font-size: 1.05rem;
+        }
+        .step-number { font-weight: 800; color: var(--dried-thyme); margin-right: 10px; font-size: 1.2rem; }
+
+        /* API & AUTH MODALS */
+        #apiModal, #authModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center;
+        }
+        .api-content, .auth-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
+        .api-input, .auth-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; }
+        .auth-content h2 { margin-top: 0; color: var(--text-dark); }
+        .auth-content button { width: 100%; margin-top: 10px; }
+
+        /* =========================================
+           MOBILE RESPONSIVENESS FIXES
+           ========================================= */
+        @media (max-width: 900px) {
+            .header-container { flex-direction: column; gap: 1rem; padding: 0.5rem 1rem; }
+            .main-nav { width: 100%; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+            .main-nav ul { width: max-content; margin: 0 auto; gap: 1.5rem; padding: 0 10px; }
+            
+            /* FIX: Profile Dropdown on Mobile (Bottom Sheet Style) */
+            .profile-menu .dropdown-content {
+                position: fixed !important;
+                top: auto !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                margin-top: 0;
+                border-radius: 24px 24px 0 0;
+                border: none;
+                box-shadow: 0 -10px 50px rgba(0,0,0,0.2);
+                padding-bottom: 20px;
+                animation: slideUpMobile 0.3s ease-out;
+                z-index: 10000;
+                background: white !important;
+            }
+            .profile-menu .dropdown-content.show { display: block !important; }
+
+            .search-hero { margin-top: 2rem; margin-bottom: 2rem; padding: 0 1rem; }
+            .search-hero h2 { font-size: 2rem; }
+            
+            .recipe-card { flex-direction: column; }
+            .recipe-img { width: 100%; min-width: 100%; height: 200px; }
+            .recipe-details { padding: 1.5rem; }
+            
+            .modal-content { padding: 1.5rem; }
+            .modal-header-img { height: 200px; }
+            .detail-grid { grid-template-columns: 1fr !important; gap: 1rem; }
+        }
+
+        @media (max-width: 600px) {
+            .main-nav ul { gap: 1rem; }
+            .main-nav a:not(.btn-primary) { font-size: 0.85rem; }
+            .btn-primary { padding: 8px 20px; font-size: 0.85rem; }
+            
+            .search-container, .ingredient-input-container { flex-direction: column; padding: 15px; border-radius: 24px; gap: 10px; }
+            .search-input { padding: 0.5rem; text-align: center; border-bottom: 1px solid #eee; }
+            
+            .modal-glass-card { width: 95%; padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="authModal">
+        <div class="auth-content">
+            <h2 id="authTitle">Welcome Back</h2>
+            <p style="color:var(--text-muted); margin-bottom:1rem;">Login to save your recipes & track calories.</p>
+            <form id="authForm">
+                <input type="email" id="email" class="auth-input" placeholder="Email Address" required>
+                <input type="password" id="password" class="auth-input" placeholder="Password" required>
+                <button type="submit" id="submitAuthBtn" class="btn-primary">Log In</button>
+            </form>
+            <p style="margin-top:1rem; font-size:0.9rem;">
+                <span id="toggleAuthMode" style="cursor:pointer; color:var(--primary-rose); font-weight:bold;">Don't have an account? Create one</span>
+            </p>
+            <button onclick="document.getElementById('authModal').style.display='none'" style="background:none; border:none; color:var(--text-muted); margin-top:10px; cursor:pointer;">Close</button>
+            <div id="authMessage" style="color:red; margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <div id="apiModal">
+        <div class="api-content">
+            <h3>Enable AI Chef</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Enter your Groq API Key to generate custom recipes. Without it, you will see a demo mode.</p>
+            <input type="password" id="groqKeyInput" class="api-input" placeholder="gsk_...">
+            <button id="saveKeyBtn" class="btn-primary" style="width: 100%;">Save Key</button>
+            <button onclick="document.getElementById('apiModal').style.display='none'" style="background:none; border:none; color: var(--text-muted); margin-top: 10px; cursor: pointer; text-decoration: underline;">Use Demo Mode</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <a href="homepage.html" class="logo">
+                <img src="https://i.pinimg.com/1200x/5b/4a/51/5b4a516498ad17b281169384b714a635.jpg" alt="logo" width="45" height="45">
+                <h1>FridgePlanner</h1>
+            </a>
+            
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="homepage.html"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                    <li><a href="caloriesmeter.html"><i class="fas fa-fire"></i> <span>Calories</span></a></li>
+                    <li><a href="recipegenerator.html" class="active"><i class="fas fa-utensils"></i> <span>Recipes</span></a></li>
+                    <li><a href="NutriPlus.html"><i  class="fas fa-leaf"></i> <span>NutriPlus</span></a></li>
+
+                    <li id="loginLi-disabled">
+                        <button class="btn-primary small-btn" id="navLoginBtn">Login</button>
+                    </li>
+                    
+                    <li id="profileLi-active" class="hidden">
+                        <div class="profile-menu">
+                            <button class="profile-btn" id="profileToggleBtn">
+                                <div class="profile-initials" id="userAvatar">U</div>
+                                <span id="userNameDisplay">Profile</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-content" id="profileDropdown">
+                                <div class="dropdown-header">
+                                    <p class="user-email">user@example.com</p>
+                                </div>
+                                <a href="homepage.html"><i class="fas fa-heart"></i> Saved Recipes</a>
+                                <a href="homepage.html"><i class="fas fa-calendar-alt"></i> My Plans</a>
+                                <hr style="margin: 0; border: 0; border-top: 1px solid #eee;">
+                                <a href="#" id="navSignOutBtn" style="color:#e74c3c"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="search-hero">
+            <h2>Cook With What <span style="color: var(--primary-rose);">You Have</span></h2>
+            <p>Add ingredients from your fridge to see what you can make.</p>
+            
+            <div class="ingredient-input-container">
+                <input type="text" id="ingredientInput" class="search-input" placeholder="Add an item (e.g. Eggs, Spinach, Chicken)">
+                <button id="addIngredientBtn" class="btn-primary" style="padding: 0.8rem 1.5rem; border-radius: 40px;">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+
+            <div id="ingredientListDisplay" class="added-ingredients-area">
+                <span style="color: var(--text-muted); font-size: 0.9rem; align-self: center;">Your basket is empty. Add items above!</span>
+            </div>
+
+            <button id="findRecipesBtn" class="btn-primary" style="display:none; margin: 0 auto; font-size: 1.1rem; padding: 1rem 3rem;">
+                <i class="fas fa-search"></i> Find Recipes
+            </button>
+        </section>
+
+        <section class="results-section">
+            <div id="loadingSpinner" style="display: none; text-align: center; width: 100%; margin: 4rem 0;">
+                <i class="fas fa-spinner fa-spin fa-3x" style="color: var(--primary-rose);"></i>
+                <p>Checking your fridge inventory against recipes...</p>
+            </div>
+
+            <div id="recipeResultsGrid" class="inventory-container"></div>
+        </section>
+        
+        <div id="recipeCardWrapper">
+            <div class="modal-card">
+                <button onclick="closeModal()" class="modal-close-btn"><i class="fas fa-times"></i></button>
+                <img id="modalRecipeImage" src="" alt="Food Image" class="modal-header-img">
+                <div class="modal-content">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <span id="recipeType" class="tag-pill">Type</span>
+                            <h2 id="recipeTitle" style="text-align: left; margin: 10px 0; color: var(--text-dark);">Title</h2>
+                        </div>
+                        <div style="text-align: right; color: var(--text-muted);">
+                            <div style="margin-bottom: 5px;"><i class="fas fa-clock" style="color: var(--dried-thyme);"></i> <span id="recipeTime"></span></div>
+                            <div><i class="fas fa-fire" style="color: var(--primary-rose);"></i> <span id="recipeCalories"></span></div>
+                        </div>
+                    </div>
+
+                    <p id="recipeDescription" style="color: var(--text-muted); margin: 1rem 0; font-size: 1.1rem;"></p>
+                    
+                    <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; margin-top: 2rem;">
+                        <div style="background: var(--bg-base); padding: 1.5rem; border-radius: 20px; height: fit-content;">
+                            <h5 style="color: var(--dried-thyme); font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 2px solid white; padding-bottom: 0.5rem;">
+                                <i class="fas fa-shopping-basket"></i> Needed
+                            </h5>
+                            <ul id="ingredientsNeededList" style="padding-left: 1.2rem; line-height: 1.8; color: var(--text-dark);"></ul>
+                        </div>
+                        
+                        <div>
+                            <h5 style="color: var(--text-dark); font-size: 1.2rem; margin-bottom: 1rem;">
+                                <i class="fas fa-list-ol" style="color: var(--primary-rose);"></i> Step-by-Step
+                            </h5>
+                            <div id="instructionsListContainer"></div>
+                        </div>
+                    </div>
+
+                    <div class="action-btn-group" style="margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 2rem;">
+                         <button class="btn-primary" id="btnDownloadRecipe" style="background: var(--accent-green); color: white;">
+                            <i class="fas fa-download"></i> Download Recipe
+                        </button>
+                        <button class="btn-primary" id="btnSaveRecipe" style="background: var(--bg-card); color: var(--text-dark); border: 1px solid #ddd;">
+                            <i class="far fa-heart"></i> Save to Favorites
+                        </button>
+                        <button class="btn-primary" id="btnTrackCalories">
+                            <i class="fas fa-plus-circle"></i> Track Calories
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api'; 
+        const SUPABASE_URL = 'https://dzdrduqwkfdznkqtjuai.supabase.co'; 
+        const SUPABASE_KEY = 'sb_publishable_eHdGsaJOPDvhoUL_1sipWw_RxFvhAy2';
+        
+        // This Key should ideally come from env or server, but hardcoded here for demo
+        let GROQ_API_KEY = "gsk_YOUR_GROQ_API_KEY_HERE"; 
+        
+        let supabaseClient, currentUser = null, isLoginMode = true, currentOpenRecipe = null;
+        let myIngredients = [];
+        
+        const ui = {
+            input: document.getElementById('ingredientInput'),
+            addBtn: document.getElementById('addIngredientBtn'),
+            listDisplay: document.getElementById('ingredientListDisplay'),
+            searchBtn: document.getElementById('findRecipesBtn'),
+            grid: document.getElementById('recipeResultsGrid'),
+            loader: document.getElementById('loadingSpinner'),
+            modal: document.getElementById('recipeCardWrapper')
+        };
+        const PLACEHOLDER_LOGO = "https://placehold.co/800x600/FBEAD6/6B7556?text=FridgePlanner";
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                updateAuthUI(session);
+                supabaseClient.auth.onAuthStateChange((_e, session) => updateAuthUI(session));
+            }
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Auth
+            document.getElementById('navLoginBtn').onclick = () => document.getElementById('authModal').style.display = 'flex';
+            document.getElementById('navSignOutBtn').onclick = async () => await supabaseClient.auth.signOut();
+            document.getElementById('toggleAuthMode').onclick = () => {
+                isLoginMode = !isLoginMode;
+                document.getElementById('authTitle').textContent = isLoginMode ? "Welcome Back" : "Create Account";
+                document.getElementById('submitAuthBtn').textContent = isLoginMode ? "Log In" : "Sign Up";
+            };
+            document.getElementById('authForm').onsubmit = handleAuth;
+
+            // Profile
+            const profileBtn = document.getElementById('profileToggleBtn');
+            const dropdown = document.getElementById('profileDropdown');
+            profileBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); };
+            window.onclick = (e) => { if (!profileBtn.contains(e.target)) dropdown.classList.remove('show'); };
+
+            // Ingredients
+            ui.addBtn.onclick = addIngredient;
+            ui.input.onkeypress = (e) => { if(e.key === 'Enter') addIngredient(); };
+            ui.searchBtn.onclick = fetchRecipes;
+            
+            // Buttons
+            document.getElementById('btnTrackCalories').onclick = trackCalories;
+            document.getElementById('btnDownloadRecipe').onclick = downloadRecipePDF;
+            document.getElementById('btnSaveRecipe').onclick = saveRecipeFull;
+        }
+
+        function addIngredient() {
+            const val = ui.input.value.trim();
+            if(val && !myIngredients.includes(val)) {
+                myIngredients.push(val);
+                renderIngredients();
+                ui.input.value = '';
+            }
+        }
+
+        function removeIngredient(val) {
+            myIngredients = myIngredients.filter(i => i !== val);
+            renderIngredients();
+        }
+
+        function renderIngredients() {
+            if(myIngredients.length === 0) {
+                ui.listDisplay.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem; align-self: center;">Your basket is empty. Add items above!</span>';
+                ui.searchBtn.style.display = 'none';
+            } else {
+                ui.listDisplay.innerHTML = '';
+                myIngredients.forEach(ing => {
+                    const tag = document.createElement('div');
+                    tag.className = 'ingredient-tag';
+                    tag.innerHTML = `<span>${ing}</span> <i class="fas fa-times tag-remove" onclick="removeIngredient('${ing}')"></i>`;
+                    ui.listDisplay.appendChild(tag);
+                });
+                ui.searchBtn.style.display = 'block';
+            }
+        }
+
+        function updateAuthUI(session) {
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('loginLi-disabled').classList.add('hidden');
+                document.getElementById('profileLi-active').classList.remove('hidden');
+                const name = session.user.user_metadata.full_name || session.user.email.split('@')[0];
+                document.getElementById('userNameDisplay').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+                document.querySelector('.user-email').textContent = session.user.email;
+                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+            } else {
+                currentUser = null;
+                document.getElementById('loginLi-disabled').classList.remove('hidden');
+                document.getElementById('profileLi-active').classList.add('hidden');
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('authMessage');
+            try {
+                if (isLoginMode) {
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    document.getElementById('authModal').style.display = 'none';
+                    showToast("Logged in!");
+                } else {
+                    const { error } = await supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+                    msg.textContent = "Check email for link."; msg.style.color = "green";
+                }
+            } catch (err) { msg.textContent = err.message; msg.style.color = "red"; }
+        }
+
+        function toggleLoader(show) {
+            ui.loader.style.display = show ? 'block' : 'none';
+            ui.grid.style.display = show ? 'none' : 'flex';
+        }
+
+        async function getFoodImage(name) {
+            try {
+                const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${name.split(' ')[0]}`);
+                const data = await res.json();
+                return data.meals ? data.meals[0].strMealThumb : PLACEHOLDER_LOGO;
+            } catch { return PLACEHOLDER_LOGO; }
+        }
+
+        async function fetchRecipes() {
+            if(myIngredients.length === 0) return;
+            toggleLoader(true);
+            ui.grid.innerHTML = '';
+            try {
+                let recipes = await fetchRecipesFromGroq();
+                if(!recipes || recipes.length === 0) recipes = await getMockRecipes();
+                for (let r of recipes) {
+                    r.image = await getFoodImage(r.title);
+                    createRecipeCard(r);
+                }
+            } catch (e) { console.error(e); ui.grid.innerHTML = `<h3 style="margin:auto; color:var(--primary-rose);">Error.</h3>`; } 
+            finally { toggleLoader(false); }
+        }
+
+        async function fetchRecipesFromGroq() {
+            const prompt = `
+                I have ingredients: ${myIngredients.join(', ')}.
+                You are a detailed cooking teacher. Suggest 6 distinct recipes using mostly these ingredients (plus pantry staples).
+
+                CRITICAL INSTRUCTION FORMATTING:
+                - Provide very detailed, step-by-step cooking instructions.
+                - For EACH step, you MUST specify:
+                  1. Heat/Flame Level (Low/Medium/High).
+                  2. Exact Time (minutes/seconds).
+                  3. Visual/Texture cues (e.g., "until golden brown").
+
+                Return ONLY raw JSON (no markdown):
+                {
+                  "recipes": [
+                    {
+                      "title": "Recipe Name",
+                      "type": "Cuisine Type",
+                      "time": "Total Time",
+                      "cal": "Calories",
+                      "desc": "Short appetizing description",
+                      "ingredients": ["List of ingredients with quantities"],
+                      "instructions": ["Step 1: details...", "Step 2: details..."]
+                    }
+                  ]
+                }
+            `;
+
+            try {
+                const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: [{role:"user", content:prompt}], model: "llama-3.3-70b-versatile" })
+                });
+                const data = await res.json();
+                const content = data.choices[0].message.content.replace(/```json/g, '').replace(/```/g, '').trim();
+                return JSON.parse(content).recipes;
+            } catch { return null; }
+        }
+
+        async function getMockRecipes() {
+            await new Promise(r => setTimeout(r, 600));
+            return [{ title: "Fridge Scramble", cal: "400", time: "20 mins", desc: "A mix of your ingredients.", ingredients: myIngredients, instructions: ["Cook everything."] }];
+        }
+
+        function createRecipeCard(recipe) {
+            const div = document.createElement('div');
+            div.className = 'recipe-card';
+            div.onclick = () => openModal(recipe);
+            div.innerHTML = `
+                <img src="${recipe.image}" class="recipe-img">
+                <div class="recipe-details">
+                    <h4>${recipe.title}</h4>
+                    <p class="recipe-desc">${recipe.desc}</p>
+                    <div class="recipe-meta">
+                        <span><i class="fas fa-clock"></i> ${recipe.time}</span>
+                        <span><i class="fas fa-fire"></i> ${recipe.cal} kcal</span>
+                    </div>
+                </div>`;
+            ui.grid.appendChild(div);
+        }
+
+        function openModal(recipe) {
+            currentOpenRecipe = recipe;
+            document.getElementById('recipeTitle').textContent = recipe.title;
+            document.getElementById('recipeDescription').textContent = recipe.desc;
+            document.getElementById('recipeTime').textContent = recipe.time;
+            document.getElementById('recipeCalories').textContent = recipe.cal + ' kcal';
+            document.getElementById('recipeType').textContent = recipe.type || 'Meal';
+            document.getElementById('modalRecipeImage').src = recipe.image;
+            document.getElementById('ingredientsNeededList').innerHTML = (recipe.ingredients || []).map(i => `<li>${i}</li>`).join('');
+            document.getElementById('instructionsListContainer').innerHTML = (recipe.instructions || []).map((s,i) => `<div class="instruction-step"><span class="step-number">0${i+1}</span> ${s}</div>`).join('');
+            ui.modal.style.display = 'flex';
+            setTimeout(() => ui.modal.classList.add('open'), 10);
+        }
+
+        function closeModal() {
+            ui.modal.classList.remove('open');
+            setTimeout(() => ui.modal.style.display = 'none', 300);
+        }
+
+        // --- BUTTON ACTIONS ---
+
+        // 1. DOWNLOAD
+        function downloadRecipePDF() {
+            if(!currentOpenRecipe) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(22); doc.text(currentOpenRecipe.title, 20, 20);
+            doc.setFontSize(12); doc.text(`Time: ${currentOpenRecipe.time} | Calories: ${currentOpenRecipe.cal}`, 20, 30);
+            doc.setFontSize(16); doc.text("Ingredients:", 20, 45);
+            doc.setFontSize(12);
+            let y = 55;
+            currentOpenRecipe.ingredients.forEach(ing => { doc.text(`• ${ing}`, 20, y); y += 10; });
+            y += 10; doc.setFontSize(16); doc.text("Instructions:", 20, y);
+            y += 10; doc.setFontSize(12);
+            const splitText = doc.splitTextToSize(currentOpenRecipe.instructions.join('\n\n'), 170);
+            doc.text(splitText, 20, y);
+            doc.save(`${currentOpenRecipe.title}.pdf`);
+        }
+
+        // 2. SAVE FULL RECIPE
+        async function saveRecipeFull() {
+            if(!currentOpenRecipe) return;
+            const btn = document.getElementById('btnSaveRecipe');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            try {
+                let token = null;
+                if(supabaseClient) {
+                    const { data } = await supabaseClient.auth.getSession();
+                    token = data.session?.access_token;
+                }
+                if(token) {
+                    await fetch(`${API_BASE_URL}/recipes/save`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ 
+                            recipe: {
+                                title: currentOpenRecipe.title,
+                                image: currentOpenRecipe.image,
+                                calories: parseInt(currentOpenRecipe.cal),
+                                ingredients: currentOpenRecipe.ingredients,
+                                instructions: currentOpenRecipe.instructions,
+                                savedAt: new Date()
+                            } 
+                        })
+                    });
+                    btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                } else { alert("Please login first"); btn.innerHTML = '<i class="far fa-heart"></i> Save'; }
+            } catch(e) { console.error(e); btn.innerHTML = 'Error'; }
+        }
+
+        // 3. TRACK CALORIES
+        async function trackCalories() {
+            if(!currentOpenRecipe) return;
+            const btn = document.getElementById('btnTrackCalories');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            try {
+                let token = null;
+                if(supabaseClient) {
+                    const { data } = await supabaseClient.auth.getSession();
+                    token = data.session?.access_token;
+                }
+                if(token) {
+                    const calVal = parseInt(currentOpenRecipe.cal.replace(/\D/g,'')) || 400;
+                    await fetch(`${API_BASE_URL}/food`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ 
+                            userId: currentUser.id, 
+                            name: currentOpenRecipe.title, 
+                            calories: calVal, 
+                            timestamp: new Date().toISOString() 
+                        })
+                    });
+                    btn.innerHTML = '<i class="fas fa-check"></i> Tracked!';
+                    btn.style.backgroundColor = 'var(--dried-thyme)';
+                } else { alert("Please login first"); }
+            } catch(e) { console.error(e); btn.innerHTML = 'Error'; }
+            setTimeout(() => { btn.innerHTML = '<i class="fas fa-plus-circle"></i> Track Calories'; btn.style.backgroundColor = ''; }, 2000);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

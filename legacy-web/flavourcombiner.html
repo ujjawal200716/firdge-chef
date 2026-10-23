@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flavour Combiner - Fridge Planner</title>
+    <link rel="stylesheet" href="flavour.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="https://i.pinimg.com/1200x/5b/4a/51/5b4a516498ad17b281169384b714a635.jpg" alt="logo1" width="50" height="50">
+                <i class="fas fa-refrigerator"></i>
+                <h1>FridgePlanner</h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li>
+                        <a href="homepage.html">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="saverecipe.html">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Saved Recipes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="AI.html">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Alternative Ingredient</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="flavourcombiner.html" class="active">
+                            <i class="fas fa-palette"></i>
+                            <span>Flavour Combiner</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="caloriesmeter.html">
+                            <i class="fas fa-fire"></i>
+                            <span>Calories Meter</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="recipegenerator.html">
+                            <i class="fas fa-utensils"></i>
+                            <span>Recipe Generator</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Search box as part of the navigation -->
+                    <li class="search-container">
+                        <input type="text" class="search-input" placeholder="Search flavours...">
+                        <i class="fas fa-search search-icon"></i>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Flavour Combiner Section -->
+        <section class="flavour-combiner-section">
+            <div class="section-header">
+                <h2><i class="fas fa-palette"></i> Flavour Combiner</h2>
+                <p class="section-subtitle">Discover perfect flavour combinations and create amazing dishes</p>
+            </div>
+            
+            <div class="flavour-container">
+                <div class="flavour-selector">
+                    <div class="selector-header">
+                        <h3><i class="fas fa-plus-circle"></i> Select Your Ingredients</h3>
+                        <p>Choose up to 3 ingredients to see flavour combinations</p>
+                    </div>
+                    
+                    <div class="ingredient-selectors">
+                        <div class="ingredient-selector">
+                            <label for="ingredient1"><i class="fas fa-carrot"></i> Ingredient 1</label>
+                            <select id="ingredient1" class="flavour-select">
+                                <option value="">Select an ingredient...</option>
+                                <option value="chicken">Chicken</option>
+                                <option value="salmon">Salmon</option>
+                                <option value="beef">Beef</option>
+                                <option value="tofu">Tofu</option>
+                                <option value="eggs">Eggs</option>
+                            </select>
+                        </div>
+                        
+                        <div class="ingredient-selector">
+                            <label for="ingredient2"><i class="fas fa-carrot"></i> Ingredient 2</label>
+                            <select id="ingredient2" class="flavour-select">
+                                <option value="">Select an ingredient...</option>
+                                <option value="broccoli">Broccoli</option>
+                                <option value="tomato">Tomato</option>
+                                <option value="potato">Potato</option>
+                                <option value="spinach">Spinach</option>
+                                <option value="mushroom">Mushroom</option>
+                            </select>
+                        </div>
+                        
+                        <div class="ingredient-selector">
+                            <label for="ingredient3"><i class="fas fa-carrot"></i> Ingredient 3 (Optional)</label>
+                            <select id="ingredient3" class="flavour-select">
+                                <option value="">Select an ingredient...</option>
+                                <option value="garlic">Garlic</option>
+                                <option value="ginger">Ginger</option>
+                                <option value="lemon">Lemon</option>
+                                <option value="cheese">Cheese</option>
+                                <option value="cream">Cream</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="cuisine-selector">
+                        <h4><i class="fas fa-globe-americas"></i> Cuisine Type</h4>
+                        <div class="cuisine-tags">
+                            <span class="cuisine-tag active" data-cuisine="all">All</span>
+                            <span class="cuisine-tag" data-cuisine="italian">Italian</span>
+                            <span class="cuisine-tag" data-cuisine="asian">Asian</span>
+                            <span class="cuisine-tag" data-cuisine="mexican">Mexican</span>
+                            <span class="cuisine-tag" data-cuisine="indian">Indian</span>
+                            <span class="cuisine-tag" data-cuisine="mediterranean">Mediterranean</span>
+                            <span class="cuisine-tag" data-cuisine="american">American</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" id="combineFlavours">
+                        <i class="fas fa-magic"></i> Combine Flavours
+                    </button>
+                    <button class="btn-secondary" id="randomFlavours">
+                        <i class="fas fa-random"></i> Random Combination
+                    </button>
+                </div>
+                
+                <div class="flavour-results">
+                    <div class="empty-flavour-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Discover Flavour Combinations</h3>
+                        <p>Select ingredients above to see magical flavour combinations, pairing suggestions, and recipe ideas.</p>
+                        <div class="feature-highlights">
+                            <div class="highlight">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Perfect Pairings</span>
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Spice Recommendations</span>
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Recipe Ideas</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flavour-output" id="flavourOutput" style="display: none;">
+                        <div class="output-header">
+                            <h3><i class="fas fa-star"></i> Flavour Combination Results</h3>
+                            <div class="selected-ingredients" id="selectedIngredients">
+                                <!-- Selected ingredients will appear here -->
+                            </div>
+                        </div>
+                        
+                        <div class="combination-cards">
+                            <!-- Combination cards will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flavour-wheel-section">
+                <h3><i class="fas fa-chart-pie"></i> Flavour Profile Analysis</h3>
+                <div class="flavour-wheel-container">
+                    <div class="wheel-placeholder" id="flavourWheel">
+                        <div class="wheel-text">
+                            <i class="fas fa-chart-pie"></i>
+                            <p>Flavour wheel will appear here after combining ingredients</p>
+                        </div>
+                    </div>
+                    <div class="wheel-legend">
+                        <h4>Flavour Profile</h4>
+                        <div class="profile-stats" id="profileStats">
+                            <!-- Profile stats will appear here -->
+                        </div>
+                        <div class="intensity-meter">
+                            <h5>Flavour Intensity</h5>
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="intensityFill"></div>
+                            </div>
+                            <span class="meter-label" id="intensityLabel">Medium</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="popular-pairings">
+                <h3><i class="fas fa-fire"></i> Popular Flavour Pairings</h3>
+                <div class="pairing-grid">
+                    <div class="pairing-card" data-ingredients="tomato,garlic,basil">
+                        <div class="pairing-header">
+                            <div class="pairing-icons">
+                                <i class="fas fa-apple-alt"></i>
+                                <i class="fas fa-plus"></i>
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <span class="cuisine-badge italian">Italian</span>
+                        </div>
+                        <h4>Tomato + Garlic + Basil</h4>
+                        <p class="pairing-desc">Classic Italian trio perfect for pasta sauces and bruschetta</p>
+                        <div class="pairing-tags">
+                            <span class="pairing-tag">Savory</span>
+                            <span class="pairing-tag">Aromatic</span>
+                            <span class="pairing-tag">Fresh</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pairing-card" data-ingredients="chicken,lemon,thyme">
+                        <div class="pairing-header">
+                            <div class="pairing-icons">
+                                <i class="fas fa-drumstick-bite"></i>
+                                <i class="fas fa-plus"></i>
+                                <i class="fas fa-lemon"></i>
+                            </div>
+                            <span class="cuisine-badge mediterranean">Mediterranean</span>
+                        </div>
+                        <h4>Chicken + Lemon + Thyme</h4>
+                        <p class="pairing-desc">Bright and herbaceous combination for roasted dishes</p>
+                        <div class="pairing-tags">
+                            <span class="pairing-tag">Citrusy</span>
+                            <span class="pairing-tag">Herbal</span>
+                            <span class="pairing-tag">Light</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pairing-card" data-ingredients="beef,ginger,soy">
+                        <div class="pairing-header">
+                            <div class="pairing-icons">
+                                <i class="fas fa-hamburger"></i>
+                                <i class="fas fa-plus"></i>
+                                <i class="fas fa-root"></i>
+                            </div>
+                            <span class="cuisine-badge asian">Asian</span>
+                        </div>
+                        <h4>Beef + Ginger + Soy</h4>
+                        <p class="pairing-desc">Umami-rich combination for stir-fries and marinades</p>
+                        <div class="pairing-tags">
+                            <span class="pairing-tag">Umami</span>
+                            <span class="pairing-tag">Spicy</span>
+                            <span class="pairing-tag">Rich</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pairing-card" data-ingredients="salmon,dill,lemon">
+                        <div class="pairing-header">
+                            <div class="pairing-icons">
+                                <i class="fas fa-fish"></i>
+                                <i class="fas fa-plus"></i>
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <span class="cuisine-badge scandinavian">Scandinavian</span>
+                        </div>
+                        <h4>Salmon + Dill + Lemon</h4>
+                        <p class="pairing-desc">Fresh and delicate pairing perfect for seafood</p>
+                        <div class="pairing-tags">
+                            <span class="pairing-tag">Fresh</span>
+                            <span class="pairing-tag">Light</span>
+                            <span class="pairing-tag">Herbal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="spice-recommendations">
+                <h3><i class="fas fa-pepper-hot"></i> Recommended Spices & Herbs</h3>
+                <div class="spice-grid" id="spiceGrid">
+                    <!-- Spice recommendations will appear here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Fridge Planner</h3>
+                <p>Smart meal planning starting from your fridge. Reduce food waste and eat healthier.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="homepage.html">Home</a></li>
+                    <li><a href="savedrecipes.html">Saved Recipes</a></li>
+                    <li><a href="alternativeingredient.html">Alternative Ingredients</a></li>
+                    <li><a href="flavourcombiner.html">Flavour Combiner</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 Fridge Planner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Recipe Idea Modal -->
+    <div class="modal-overlay" id="recipeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-utensils"></i> Recipe Idea</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="recipe-idea-content">
+                    <div class="recipe-header">
+                        <h4 id="recipeTitle">Chicken with Lemon and Thyme</h4>
+                        <div class="recipe-meta">
+                            <span><i class="fas fa-clock"></i> <span id="recipeTime">45 mins</span></span>
+                            <span><i class="fas fa-fire"></i> <span id="recipeCalories">420 cal</span></span>
+                            <span><i class="fas fa-user-friends"></i> <span id="recipeServings">4 servings</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-ingredients">
+                        <h5><i class="fas fa-shopping-basket"></i> Ingredients</h5>
+                        <ul id="recipeIngredients">
+                            <!-- Ingredients will be added here -->
+                        </ul>
+                    </div>
+                    
+                    <div class="recipe-instructions">
+                        <h5><i class="fas fa-list-ol"></i> Instructions</h5>
+                        <ol id="recipeInstructions">
+                            <!-- Instructions will be added here -->
+                        </ol>
+                    </div>
+                    
+                    <div class="recipe-tips">
+                        <h5><i class="fas fa-lightbulb"></i> Tips</h5>
+                        <p id="recipeTips">Marinate the chicken for at least 30 minutes for better flavor absorption.</p>
+                    </div>
+                    
+                    <div class="recipe-flavour">
+                        <h5><i class="fas fa-palette"></i> Flavour Profile</h5>
+                        <div class="flavour-tags" id="recipeFlavourTags">
+                            <!-- Flavour tags will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="modalCancel">Close</button>
+                <button class="btn-primary" id="saveRecipeIdea">
+                    <i class="far fa-bookmark"></i> Save Recipe
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="flavour.js"></script>
+</body>
+</html>

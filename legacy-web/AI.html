@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternative Ingredients - Fridge Planner</title>
+    <link rel="stylesheet" href="alternative.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="https://i.pinimg.com/1200x/5b/4a/51/5b4a516498ad17b281169384b714a635.jpg" alt="logo1" width="50" height="50">
+                <i class="fas fa-refrigerator"></i>
+                <h1>FridgePlanner</h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li>
+                        <a href="homepage.html">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="saverecipe.html">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Saved Recipes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="AI.html" class="active">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Alternative Ingredient</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="flavourcombiner.html">
+                            <i class="fas fa-palette"></i>
+                            <span>Flavour Combiner</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="caloriesmeter.html">
+                            <i class="fas fa-fire"></i>
+                            <span>Calories Meter</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="recipegenerator.html">
+                            <i class="fas fa-utensils"></i>
+                            <span>Recipe Generator</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Search box as part of the navigation -->
+                    <li class="search-container">
+                        <input type="text" class="search-input" placeholder="Search ingredients...">
+                        <i class="fas fa-search search-icon"></i>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Alternative Ingredient Section -->
+        <section class="alternative-ingredient-section">
+            <div class="section-header">
+                <h2><i class="fas fa-exchange-alt"></i> Alternative Ingredient Finder</h2>
+                <p class="section-subtitle">Find perfect substitutes for ingredients you're missing or want to replace</p>
+            </div>
+            
+            <div class="alternative-container">
+                <div class="search-alternative">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="ingredientSearch" placeholder="Enter ingredient (e.g., eggs, milk, flour)...">
+                        <button class="btn-primary" id="searchAlternativeBtn">
+                            <i class="fas fa-search"></i> Find Alternatives
+                        </button>
+                    </div>
+                    <div class="search-examples">
+                        <p>Try: <span class="example-tag" data-ingredient="eggs">eggs</span>, 
+                               <span class="example-tag" data-ingredient="milk">milk</span>, 
+                               <span class="example-tag" data-ingredient="flour">flour</span>, 
+                               <span class="example-tag" data-ingredient="butter">butter</span>, 
+                               <span class="example-tag" data-ingredient="sugar">sugar</span></p>
+                    </div>
+                </div>
+                
+                <div class="alternative-results" id="alternativeResults">
+                    <div class="empty-alternative-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3>Find Ingredient Alternatives</h3>
+                        <p>Enter an ingredient above to find suitable substitutes. We'll show you the best alternatives based on dietary needs, availability, and cooking purpose.</p>
+                        <div class="feature-cards">
+                            <div class="feature-card">
+                                <i class="fas fa-leaf"></i>
+                                <h4>Vegetarian/Vegan</h4>
+                                <p>Find plant-based alternatives</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-allergies"></i>
+                                <h4>Allergy-Friendly</h4>
+                                <p>Gluten-free, dairy-free options</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-heart"></i>
+                                <h4>Healthier Options</h4>
+                                <p>Lower calorie alternatives</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alternative-details" id="alternativeDetails" style="display: none;">
+                    <div class="ingredient-header">
+                        <div class="ingredient-info">
+                            <h3 id="currentIngredient">Eggs</h3>
+                            <div class="ingredient-categories">
+                                <span class="category-tag" id="ingredientCategory">Dairy & Eggs</span>
+                                <span class="diet-tag" id="ingredientDiet">Vegetarian</span>
+                            </div>
+                        </div>
+                        <div class="ingredient-actions">
+                            <button class="btn-small" id="saveIngredient">
+                                <i class="far fa-bookmark"></i> Save
+                            </button>
+                            <button class="btn-small" id="shareIngredient">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="alternative-grid" id="alternativeGrid">
+                        <!-- Alternatives will be populated here -->
+                    </div>
+                    
+                    <div class="usage-tips" id="usageTips">
+                        <h4><i class="fas fa-lightbulb"></i> Usage Tips</h4>
+                        <div class="tips-content" id="tipsContent">
+                            <!-- Tips will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="nutrition-comparison" id="nutritionComparison">
+                        <h4><i class="fas fa-chart-bar"></i> Nutrition Comparison (per 100g)</h4>
+                        <div class="comparison-chart">
+                            <div class="chart-bars">
+                                <!-- Nutrition bars will be populated here -->
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color original"></span> Original</span>
+                                <span class="legend-item"><span class="legend-color alternative"></span> Alternative</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="popular-alternatives">
+                <h3><i class="fas fa-fire"></i> Popular Ingredient Alternatives</h3>
+                <div class="popular-grid">
+                    <div class="popular-card" data-ingredient="eggs">
+                        <div class="popular-icon">
+                            <i class="fas fa-egg"></i>
+                        </div>
+                        <h4>Eggs</h4>
+                        <p>8 alternatives available</p>
+                        <span class="popular-tag">Common</span>
+                    </div>
+                    <div class="popular-card" data-ingredient="milk">
+                        <div class="popular-icon">
+                            <i class="fas fa-wine-bottle"></i>
+                        </div>
+                        <h4>Milk</h4>
+                        <p>6 alternatives available</p>
+                        <span class="popular-tag">Dairy-Free</span>
+                    </div>
+                    <div class="popular-card" data-ingredient="flour">
+                        <div class="popular-icon">
+                            <i class="fas fa-wheat-awn"></i>
+                        </div>
+                        <h4>Flour</h4>
+                        <p>7 alternatives available</p>
+                        <span class="popular-tag">Gluten-Free</span>
+                    </div>
+                    <div class="popular-card" data-ingredient="butter">
+                        <div class="popular-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <h4>Butter</h4>
+                        <p>5 alternatives available</p>
+                        <span class="popular-tag">Vegan</span>
+                    </div>
+                    <div class="popular-card" data-ingredient="sugar">
+                        <div class="popular-icon">
+                            <i class="fas fa-candy-cane"></i>
+                        </div>
+                        <h4>Sugar</h4>
+                        <p>9 alternatives available</p>
+                        <span class="popular-tag">Low-Calorie</span>
+                    </div>
+                    <div class="popular-card" data-ingredient="cream">
+                        <div class="popular-icon">
+                            <i class="fas fa-whipped-cream"></i>
+                        </div>
+                        <h4>Cream</h4>
+                        <p>4 alternatives available</p>
+                        <span class="popular-tag">Light</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dietary-filter">
+                <h3><i class="fas fa-filter"></i> Filter by Dietary Need</h3>
+                <div class="filter-options">
+                    <button class="filter-btn active" data-filter="all">All Alternatives</button>
+                    <button class="filter-btn" data-filter="vegan">Vegan</button>
+                    <button class="filter-btn" data-filter="vegetarian">Vegetarian</button>
+                    <button class="filter-btn" data-filter="gluten-free">Gluten-Free</button>
+                    <button class="filter-btn" data-filter="dairy-free">Dairy-Free</button>
+                    <button class="filter-btn" data-filter="low-calorie">Low Calorie</button>
+                    <button class="filter-btn" data-filter="common">Common</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Fridge Planner</h3>
+                <p>Smart meal planning starting from your fridge. Reduce food waste and eat healthier.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="homepage.html">Home</a></li>
+                    <li><a href="saverecipes.html">Saved Recipes</a></li>
+                    <li><a href="alternativeingredient.html">Alternative Ingredients</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 Fridge Planner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Alternative Ingredient Modal -->
+    <div class="modal-overlay" id="alternativeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exchange-alt"></i> Alternative Details</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-ingredient-info">
+                    <div class="modal-ingredient-header">
+                        <h4 id="modalIngredientName">Eggs</h4>
+                        <div class="modal-ingredient-tags" id="modalIngredientTags">
+                            <!-- Tags will be added here -->
+                        </div>
+                    </div>
+                    <div class="modal-alternative-details">
+                        <h5><i class="fas fa-check-circle"></i> Best Alternative</h5>
+                        <div class="alternative-highlight" id="alternativeHighlight">
+                            <!-- Best alternative will be shown here -->
+                        </div>
+                    </div>
+                    <div class="modal-substitution-ratio">
+                        <h5><i class="fas fa-balance-scale"></i> Substitution Ratio</h5>
+                        <p id="substitutionRatio">1:1 (1 egg = 1/4 cup applesauce)</p>
+                    </div>
+                    <div class="modal-best-for">
+                        <h5><i class="fas fa-star"></i> Best For</h5>
+                        <div class="best-for-tags" id="bestForTags">
+                            <!-- Best for tags will be added here -->
+                        </div>
+                    </div>
+                    <div class="modal-notes">
+                        <h5><i class="fas fa-sticky-note"></i> Important Notes</h5>
+                        <p id="modalNotes">This alternative works best in baking. For savory dishes, consider using tofu or chickpea flour instead.</p>
+                    </div>
+                    <div class="modal-nutrition">
+                        <h5><i class="fas fa-apple-alt"></i> Nutrition Comparison</h5>
+                        <div class="nutrition-facts">
+                            <div class="nutrition-item">
+                                <span>Calories</span>
+                                <div class="nutrition-values">
+                                    <span class="original-value">155</span>
+                                    <span class="alternative-value">90</span>
+                                </div>
+                            </div>
+                            <div class="nutrition-item">
+                                <span>Protein</span>
+                                <div class="nutrition-values">
+                                    <span class="original-value">13g</span>
+                                    <span class="alternative-value">0.5g</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="modalCancel">Close</button>
+                <button class="btn-primary" id="modalSave">
+                    <i class="far fa-bookmark"></i> Save Alternative
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="alternative.js"></script>
+</body>
+</html>

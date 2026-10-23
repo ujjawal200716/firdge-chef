@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fridge Planner - Premium Design</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           1. VARIABLES & RESET
+           ========================================= */
+        :root {
+            --bg-base: #fdfbf7;
+            --bg-gradient-1: #fae3d9;
+            --bg-gradient-2: #ffd1d1;
+            
+            --primary-rose: #bf6b7a;        
+            --primary-rose-hover: #a6505f; 
+            --primary-rose-light: #fff0f3;
+            
+            --accent-green: #2ecc71;        
+            --accent-green-dark: #27ae60;
+            --accent-green-light: #e8f8f0;
+            
+            --text-dark: #1e272e;
+            --text-body: #636e72; 
+            
+            /* Glass Effects */
+            --surface-white: rgba(255, 255, 255, 0.95);
+            --surface-glass: rgba(255, 255, 255, 0.7);
+            
+            /* Shapes & Shadows */
+            --radius-card: 24px; 
+            --radius-pill: 50px;
+            --shadow-subtle: 0 10px 30px -10px rgba(191, 107, 122, 0.15);
+            --shadow-float: 0 20px 40px -10px rgba(191, 107, 122, 0.2);
+            --shadow-nav: 0 4px 30px rgba(0, 0, 0, 0.03);
+            
+            --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, var(--bg-gradient-1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, var(--bg-gradient-2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, var(--bg-gradient-1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-dark);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+        img { display: block; max-width: 100%; }
+        .hidden { display: none !important; }
+
+        /* =========================================
+           2. ANIMATIONS
+           ========================================= */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            60% { transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes dropdownBounce {
+            0% { opacity: 0; transform: scale(0.9) translateY(-10px); }
+            70% { transform: scale(1.02) translateY(2px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes slideUpMobile {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* =========================================
+           3. PREMIUM NAVBAR
+           ========================================= */
+        header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            position: sticky; top: 0; z-index: 2000;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-nav);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+            animation: slideInRight 0.6s ease-out backwards;
+        }
+
+        .header-container {
+            max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; transition: transform 0.3s; flex-shrink: 0; }
+        .logo:hover { transform: scale(1.05); }
+        .logo img {
+            border-radius: 50%; border: 2px solid white;
+            padding: 0; background: white;
+            box-shadow: 0 4px 10px rgba(191, 107, 122, 0.2);
+        }
+        .logo h1 { 
+            font-size: 1.5rem; color: var(--text-dark); font-weight: 800; letter-spacing: -0.5px; 
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary-rose) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .main-nav ul { display: flex; gap: 2.5rem; align-items: center; } 
+        
+        .main-nav a:not(.btn-primary) {
+            color: var(--text-dark); font-weight: 600; font-size: 0.95rem;
+            padding: 0.5rem 0; 
+            position: relative; opacity: 0.7; transition: 0.3s;
+        }
+        .main-nav a:not(.btn-primary):hover, .main-nav a.active {
+            opacity: 1; color: var(--primary-rose);
+        }
+        .main-nav a:not(.btn-primary)::after {
+            content: ''; position: absolute; bottom: -2px; left: 0;
+            width: 0%; height: 2px; background: var(--primary-rose);
+            border-radius: 2px; transition: 0.3s ease;
+        }
+        .main-nav a:not(.btn-primary):hover::after, .main-nav a.active::after { width: 100%; }
+
+        .btn-primary {
+            background: var(--primary-rose); color: white; border: none;
+            padding: 12px 28px; border-radius: var(--radius-pill);
+            cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(191, 107, 122, 0.3);
+            transition: var(--transition-bounce);
+            font-size: 0.9rem; position: relative; overflow: hidden;
+        }
+        .btn-primary:hover {
+            background: var(--primary-rose-hover); transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(191, 107, 122, 0.4);
+        }
+        .small-btn { padding: 10px 24px; font-size: 0.9rem; }
+
+        /* Profile Dropdown */
+        .profile-menu { position: relative; z-index: 2001; }
+        .profile-btn {
+            background: white; border: 1px solid rgba(0,0,0,0.08); cursor: pointer;
+            padding: 4px 16px 4px 4px; border-radius: 50px;
+            display: flex; align-items: center; gap: 10px; font-weight: 600;
+            transition: 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .profile-btn:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .profile-initials {
+            width: 34px; height: 34px; border-radius: 50%; 
+            background: var(--primary-rose); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .dropdown-content {
+            display: none; position: absolute; right: 0; top: 125%; margin-top: 10px;
+            background: white; min-width: 240px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            z-index: 9999; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden; animation: dropdownBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .dropdown-content.show { display: block; }
+        .dropdown-header { padding: 16px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .user-email { font-size: 0.85rem; color: #666; font-weight: 500; }
+        .dropdown-content a { color: #444; padding: 14px 20px; display: flex; gap: 10px; align-items: center; transition: 0.2s; font-size: 0.9rem; font-weight: 500; }
+        .dropdown-content a:hover { background: #fff0f3; color: var(--primary-rose); padding-left: 24px; }
+
+        /* =========================================
+           4. MAIN CONTENT & SPACING
+           ========================================= */
+        main { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; }
+        
+        section { margin-bottom: 6rem; position: relative; }
+
+        /* Hero */
+        .hero {
+            display: grid; grid-template-columns: 1.1fr 1fr; 
+            gap: 3rem; align-items: center; padding-top: 3rem; min-height: 60vh;
+        }
+        .hero-content h2 {
+            font-size: 3.5rem; line-height: 1.1; margin-bottom: 1rem;
+            color: var(--text-dark); font-weight: 800;
+            opacity: 0; animation: slideInLeft 0.8s ease-out forwards;
+        }
+        .hero-content h2 span {
+            color: var(--primary-rose);
+            background: linear-gradient(120deg, var(--primary-rose), #e66767);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-content p {
+            font-size: 1.1rem; color: var(--text-body); margin-bottom: 2rem; max-width: 90%;
+            opacity: 0; animation: slideInLeft 0.8s ease-out 0.1s forwards;
+        }
+        .hero-buttons { 
+            display: flex; gap: 1rem; flex-wrap: wrap; 
+            opacity: 0; animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        }
+        .hero-image { position: relative; display: flex; justify-content: center; }
+        .hero-image::before {
+            content: ''; position: absolute; width: 90%; height: 90%;
+            background: radial-gradient(circle, rgba(255,200,200,0.5) 0%, rgba(255,255,255,0) 70%);
+            top: 5%; left: 5%; z-index: -1; animation: popIn 1.2s ease-out;
+        }
+        .hero-fridge-image {
+            max-height: 480px;
+            border-radius: 40px; border: 2px solid rgba(255,255,255,0.8);
+            box-shadow: var(--shadow-float); backdrop-filter: blur(5px);
+            animation: slideInRight 0.8s ease-out, float 6s ease-in-out 1s infinite;
+        }
+
+        /* Calorie Widget */
+        .calorie-widget {
+            background: var(--surface-white); backdrop-filter: blur(12px);
+            padding: 1.5rem 2.5rem; width: 100%; max-width: 800px;
+            border-radius: var(--radius-card); box-shadow: var(--shadow-float); 
+            margin: -60px auto 2rem auto; 
+            border: 1px solid rgba(255,255,255,1); position: relative; z-index: 10;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: popIn 0.6s cubic-bezier(0.25, 1.5, 0.5, 1) 0.4s backwards;
+        }
+        .cal-icon {
+            width: 50px; height: 50px; background: #ffeff1; color: #ff6b6b;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; margin-right: 20px; animation: float 4s ease-in-out infinite; flex-shrink: 0;
+        }
+        .cal-info { flex: 1; margin-right: 30px; }
+        .cal-info h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        .cal-bar-container {
+            width: 100%; height: 12px; background-color: #f1f1f1;
+            border-radius: 20px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .cal-bar-fill {
+            height: 100%; background: linear-gradient(90deg, var(--accent-green), #55efc4);
+            border-radius: 20px; width: 0%; transition: width 1s ease-out;
+        }
+        .cal-stats { text-align: right; min-width: 120px; }
+        .cal-numbers { font-size: 1.4rem; color: var(--accent-green-dark); font-weight: 800; display: block; margin-bottom: 4px; }
+        .add-cal-btn {
+            border: none; background: #e8f8f0; padding: 6px 12px; border-radius: 20px;
+            color: var(--accent-green-dark); cursor: pointer; font-weight: 700; transition: 0.2s;
+        }
+        .add-cal-btn:hover { transform: scale(1.05); background: var(--accent-green); color: white; }
+
+        /* Recipes Grid */
+        .top-recipes-section h2, .how-it-works h2, .features-section h2 {
+            font-size: 2.5rem; text-align: center; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-dark);
+        }
+        .section-sub { text-align: center; color: var(--text-body); margin-bottom: 3rem; font-size: 1.1rem; }
+
+        .recipe-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; 
+        }
+        .recipe-card {
+            background: white; border-radius: 24px; overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: var(--shadow-subtle);
+            transition: var(--transition-bounce);
+            cursor: pointer;
+        }
+        .recipe-card:hover { 
+            transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px -5px rgba(191, 107, 122, 0.3); 
+        }
+        .recipe-img { width: 100%; height: 180px; object-fit: cover; transition: transform 0.6s; }
+        .recipe-card:hover .recipe-img { transform: scale(1.1); }
+        .recipe-details { padding: 1.5rem; }
+        .recipe-details h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .recipe-meta { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-body); font-weight: 500; }
+
+        /* Steps */
+        .steps-container { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; padding: 0 1rem;
+        }
+        .step-card {
+            background: rgba(255,255,255,0.6); padding: 2.5rem 2rem; 
+            border-radius: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center; border: 2px solid white; transition: var(--transition-bounce);
+        }
+        .step-card:hover { background: white; transform: translateY(-8px); box-shadow: var(--shadow-float); }
+        .step-icon {
+            width: 70px; height: 70px; background: var(--accent-green-light);
+            color: var(--accent-green-dark); border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.5rem; font-size: 1.8rem; transition: transform 0.4s ease;
+        }
+        .step-card:hover .step-icon { transform: rotate(10deg) scale(1.1); background: var(--accent-green); color: white; }
+        .step-card h3 { font-size: 1.3rem; margin-bottom: 0.8rem; font-weight: 700; }
+
+        /* Features */
+        .features-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .feature-item {
+            background: white; padding: 2rem; border-radius: 24px; width: 180px; 
+            text-align: center; box-shadow: var(--shadow-subtle); transition: 0.3s;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .feature-item:hover { transform: translateY(-8px); box-shadow: var(--shadow-float); }
+        .feature-item i { font-size: 2.2rem; margin-bottom: 1rem; display: block; transition: 0.3s; }
+        .feature-item h4 { font-size: 1rem; font-weight: 700; color: var(--text-dark); }
+
+        /* =========================================
+           7. MODALS
+           ========================================= */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(30, 39, 46, 0.6); backdrop-filter: blur(12px);
+            z-index: 10000; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.open { display: flex; opacity: 1; }
+        .modal-glass-card {
+            background: white; width: 90%; max-width: 380px; border-radius: 24px;
+            padding: 2rem; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            transform: translateY(20px) scale(0.95); transition: var(--transition-bounce);
+            text-align: center;
+            
+            /* ADDED: Scroll for mobile */
+            max-height: 90vh; 
+            overflow-y: auto;
+        }
+        .modal-large-card { max-width: 900px; padding: 2rem; text-align: left; width: 95%; }
+        .modal-overlay.open .modal-glass-card { transform: translateY(0) scale(1); }
+        
+        /* Auth & Calorie Modals */
+        .modal-header h2 { font-weight: 800; color: var(--text-dark); margin-bottom: 5px; font-size: 1.5rem; }
+        .icon-circle {
+            width: 60px; height: 60px; background: var(--primary-rose-light); color: var(--primary-rose);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin: 0 auto 1.2rem;
+        }
+        .auth-form { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.2rem; }
+        .input-container { position: relative; }
+        .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #b2bec3; font-size: 0.9rem; }
+        .auth-form input, #calInput {
+            width: 100%; padding: 12px 12px 12px 40px; 
+            border: 2px solid #f1f2f6; background-color: #fcfcfc;
+            border-radius: 12px; outline: none; transition: 0.3s; font-size: 0.9rem;
+        }
+        .auth-form input:focus, #calInput:focus { background-color: white; border-color: var(--primary-rose); box-shadow: 0 0 0 4px rgba(191, 107, 122, 0.1); }
+        .btn-submit {
+            background: var(--primary-rose); color: white; font-weight: 700;
+            padding: 12px; border: none; border-radius: 12px; width: 100%;
+            cursor: pointer; margin-top: 8px; transition: var(--transition-bounce); font-size: 0.95rem;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(191, 107, 122, 0.3); }
+        .modal-close-btn {
+            position: absolute; top: 15px; right: 15px; background: #f1f1f1;
+            border: none; width: 32px; height: 32px; border-radius: 50%;
+            cursor: pointer; color: #636e72; transition: 0.3s; z-index: 10; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-close-btn:hover { background: var(--primary-rose); color: white; transform: rotate(90deg); }
+
+        /* Saved Recipes Grid */
+        .saved-recipes-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; max-height: 60vh; overflow-y: auto; padding: 10px; }
+        .saved-card-premium {
+            background: white; border-radius: 20px; padding: 15px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .saved-card-premium:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(191, 107, 122, 0.2); border-color: var(--primary-rose-light); }
+        .saved-card-img { width: 90px; height: 90px; border-radius: 15px; object-fit: cover; }
+        .saved-card-content { flex: 1; }
+        .saved-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-view { flex: 1; padding: 8px; background: var(--primary-rose); color: white; border: none; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+        .btn-delete-icon { width: 32px; height: 32px; border: 1px solid #ffecec; background: #fff5f5; color: #ff6b6b; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* Full Recipe Detail Modal */
+        #recipeDetailModal .modal-glass-card { max-width: 900px; height: 85vh; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+        .recipe-detail-header { height: 250px; background-size: cover; background-position: center; position: relative; }
+        .recipe-detail-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: white; text-align: left; }
+        .recipe-detail-content { padding: 30px; overflow-y: auto; text-align: left; flex: 1; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .ingredients-box { background: #fffbfb; padding: 20px; border-radius: 15px; border: 1px solid #fcebeb; }
+        .ingredients-box li { padding: 8px 0; border-bottom: 1px solid #eee; display: flex; gap: 8px; font-size: 0.9rem; }
+        .ingredients-box li::before { content: "•"; color: var(--primary-rose); font-weight: bold; }
+        .instruction-step { margin-bottom: 20px; display: flex; gap: 15px; }
+        .step-num { min-width: 30px; height: 30px; background: var(--text-dark); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* =========================================
+           8. NEW WEEKLY PLAN DESIGN (UPDATED)
+           ========================================= */
+        .plan-glass-bg { background: white; }
+        
+        .day-navigator { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 2rem; background: #fdf2f4; padding: 8px 15px; border-radius: 60px; 
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #fae3d9;
+        }
+        .day-nav-btn { 
+            background: white; border: none; width: 45px; height: 45px; border-radius: 50%; 
+            box-shadow: 0 4px 10px rgba(191, 107, 122, 0.15); cursor: pointer; color: var(--primary-rose); transition: 0.3s;
+        }
+        .day-nav-btn:hover { background: var(--primary-rose); color: white; transform: scale(1.1); }
+        #currentDayTitle { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* GRID LAYOUT FOR DAY EDITOR */
+        .day-editor { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* 3 Columns for Morning, Afternoon, Evening */
+            gap: 1.5rem; 
+        }
+        @media(max-width: 768px) {
+            .day-editor { grid-template-columns: 1fr; }
+        }
+        
+        .editor-section { 
+            background: #fff; padding: 1.2rem; border-radius: 16px; 
+            border: 1px solid #eee; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.3s;
+            display: flex; flex-direction: column; height: 100%;
+        }
+        .editor-section:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        
+        /* Specific Themes */
+        .editor-section.morning { border-top: 4px solid #f1c40f; background: linear-gradient(to bottom, #fffdf5, #fff); }
+        .editor-section.afternoon { border-top: 4px solid #27ae60; background: linear-gradient(to bottom, #f0fdf4, #fff); }
+        .editor-section.evening { border-top: 4px solid #3498db; background: linear-gradient(to bottom, #f0f7fd, #fff); }
+
+        .editor-label { 
+            display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 700; 
+            color: #555; margin-bottom: 12px; 
+        }
+        .morning .editor-label { color: #d35400; }
+        .afternoon .editor-label { color: #218c53; }
+        .evening .editor-label { color: #2980b9; }
+
+        .editor-textarea { 
+            width: 100%; flex: 1; padding: 12px; border: 1px solid rgba(0,0,0,0.08); 
+            border-radius: 10px; resize: none; background: white; font-family: inherit; font-size: 0.95rem;
+            transition: 0.3s; min-height: 80px;
+        }
+        .editor-textarea:focus { border-color: var(--primary-rose); box-shadow: 0 0 0 3px rgba(191, 107, 122, 0.1); }
+
+        /* =========================================
+           9. PREMIUM CURVED FOOTER
+           ========================================= */
+        footer {
+            background: linear-gradient(180deg, #fff5f7 0%, #fae3d9 100%);
+            padding: 5rem 2rem 2rem;
+            margin-top: 6rem;
+            border-top: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50px 50px 0 0; /* Distinct Curve */
+            position: relative;
+        }
+        footer::before {
+            content: ""; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 6px; background: rgba(191, 107, 122, 0.2); border-radius: 10px;
+        }
+
+        .footer-container {
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 3rem; margin-bottom: 3rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.4rem; color: var(--text-dark); margin-bottom: 1.2rem; font-weight: 800;
+        }
+        .footer-section p { color: var(--text-body); max-width: 300px; line-height: 1.6; }
+        
+        .footer-section ul li { margin-bottom: 12px; }
+        .footer-section ul li a { color: var(--text-body); font-weight: 500; font-size: 1rem; position: relative; transition: 0.3s; }
+        .footer-section ul li a:hover { color: var(--primary-rose); padding-left: 8px; }
+        .footer-section ul li a::before { content:"›"; opacity: 0; position: absolute; left: -10px; transition: 0.3s; }
+        .footer-section ul li a:hover::before { opacity: 1; left: 0; }
+
+        .social-icons { display: flex; gap: 15px; }
+        .social-icons a {
+            width: 45px; height: 45px; border-radius: 50%; background: white;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary-rose); box-shadow: 0 5px 15px rgba(191, 107, 122, 0.15);
+            transition: 0.3s; font-size: 1.1rem;
+        }
+        .social-icons a:hover { transform: translateY(-5px) rotate(10deg); background: var(--primary-rose); color: white; }
+
+        .copyright {
+            text-align: center; padding-top: 2rem; border-top: 1px solid rgba(191, 107, 122, 0.1);
+            color: #888; font-size: 0.9rem; font-weight: 500;
+        }
+
+        /* =========================================
+           10. RESPONSIVE / MOBILE UI
+           ========================================= */
+        @media (max-width: 1024px) {
+            .hero-content h2 { font-size: 3rem; }
+            .main-nav ul { gap: 1.5rem; }
+        }
+
+        @media (max-width: 900px) {
+            .hero { grid-template-columns: 1fr; gap: 2rem; padding-top: 1rem; text-align: center; }
+            .hero-content p { margin: 0 auto 2rem; }
+            .hero-buttons { justify-content: center; }
+            .hero-content h2 { font-size: 2.5rem; }
+            
+            .calorie-widget { flex-direction: column; gap: 1rem; padding: 1.5rem; text-align: center; }
+            .cal-icon { margin-right: 0; margin-bottom: 10px; }
+            .cal-info { margin-right: 0; width: 100%; }
+            .cal-stats { text-align: center; margin-top: 10px; }
+            
+            .header-container { flex-direction: column; gap: 1rem; padding: 0.5rem 1rem; }
+            .main-nav { width: 100%; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+            .main-nav ul { width: max-content; margin: 0 auto; gap: 1.5rem; padding: 0 10px; }
+            
+            .footer-container { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
+            .footer-section p { margin: 0 auto; }
+            .social-icons { justify-content: center; }
+            
+            .recipe-detail-header { height: 180px; }
+            .detail-grid { grid-template-columns: 1fr; }
+
+            /* FIX: Profile Dropdown on Mobile (Bottom Sheet Style) */
+            .profile-menu .dropdown-content {
+                position: fixed !important;
+                top: auto !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                margin-top: 0;
+                border-radius: 24px 24px 0 0;
+                border: none;
+                box-shadow: 0 -10px 50px rgba(0,0,0,0.2);
+                padding-bottom: 20px;
+                animation: slideUpMobile 0.3s ease-out;
+                z-index: 10000;
+                background: white !important;
+            }
+            .profile-menu .dropdown-content.show {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            main { padding: 0 1rem 4rem; }
+            
+            .header-container { padding: 0 0.5rem; }
+            
+            .hero-content h2 { font-size: 2.2rem; }
+            .hero-fridge-image { max-height: 300px; }
+            
+            /* Mobile Nav: Stacked or compact */
+            .main-nav ul { gap: 1rem; }
+            .main-nav a:not(.btn-primary) { font-size: 0.85rem; }
+            .btn-primary { padding: 8px 20px; font-size: 0.85rem; }
+            
+            /* Recipe Grid Adjustment */
+            .recipe-grid { grid-template-columns: 1fr; }
+            
+            /* Steps Adjustment */
+            .steps-container { grid-template-columns: 1fr; }
+            
+            /* Saved recipes */
+            .saved-recipes-container { grid-template-columns: 1fr; }
+            
+            /* Modal Adjustments */
+            .modal-glass-card { width: 95%; padding: 1.5rem; }
+            .day-navigator { flex-direction: row; gap: 5px; } 
+            .day-nav-btn { width: 35px; height: 35px; }
+            #currentDayTitle { font-size: 1.1rem; }
+            
+            /* Hide fancy decorations on mobile if needed */
+            .hero-image::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="homepage.html" class="logo">
+                <img src="https://i.pinimg.com/1200x/5b/4a/51/5b4a516498ad17b281169384b714a635.jpg" alt="logo" width="45" height="45">
+                <h1>FridgePlanner</h1>
+            </a>
+            
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="homepage.html" class="active"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                    <li><a href="index.html" style="background:#08090c; color:#d4ff00; border-radius:50px; padding:6px 14px; font-weight:700; border:1px solid rgba(212,255,0,0.4); display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-mobile-alt"></i> <span>Mobile App</span></a></li>
+                    <li><a href="caloriesmeter.html"><i class="fas fa-fire"></i> <span>Calories</span></a></li>
+                    <li><a href="recipe-generator.html"><i class="fas fa-utensils"></i> <span>Recipes</span></a></li>
+                      <li><a href="NutriPlus.html"><i  class="fas fa-leaf"></i> <span>NutriPlus</span></a></li>
+                    
+                    <li id="loginLi-disabled">
+                        <button class="btn-primary small-btn" id="navLoginBtn">Login</button>
+                    </li>
+                    
+                    <li id="profileLi-active" class="hidden">
+                        <div class="profile-menu">
+                            <button class="profile-btn" id="profileToggleBtn">
+                                <div class="profile-initials" id="userAvatar">U</div>
+                                <span id="userNameDisplay">Profile</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-content" id="profileDropdown">
+                                <div class="dropdown-header">
+                                    <p class="user-email">user@example.com</p>
+                                </div>
+                                <a href="#" id="openSavedBtn"><i class="fas fa-heart"></i> Saved Recipes</a>
+                                <a href="#" id="openPlanBtn"><i class="fas fa-calendar-alt"></i> My Plans</a>
+                                <hr style="margin: 0; border: 0; border-top: 1px solid #eee;">
+                                <a href="#" id="navSignOutBtn" class="sign-out"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Smart Meal Planning <br><span>Starts in Your Fridge</span></h2>
+                <p>Don't know what to cook? Tell us what ingredients you have, and we'll generate a whole week's meal plan instantly.</p>
+                <div class="hero-buttons">
+                    <a href="index.html" class="btn-primary" style="background:#08090c; color:#d4ff00; border:2px solid #d4ff00; box-shadow:0 6px 20px rgba(212,255,0,0.3);">
+                        <i class="fas fa-mobile-alt"></i> Mobile Native App
+                    </a>
+                    <a href="recipe-generator.html" class="btn-primary">
+                        <i class="fas fa-search"></i> Search by Name
+                    </a>
+                      <a href="fridge-inventory.html" class="btn-primary">
+                        <i class="fas fa-carrot"></i> Search by Ingredients
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="image/image1.png" onerror="this.src='https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=600&q=80'" alt="Smart Fridge" class="hero-fridge-image">
+            </div>
+        </section>
+
+        <section class="calories-tracker-section">
+            <div class="calorie-widget">
+                <div class="cal-icon">
+                    <i class="fas fa-fire-alt"></i>
+                </div>
+                <div class="cal-info">
+                    <h3>Today's Calories</h3>
+                    <div class="cal-bar-container">
+                        <div class="cal-bar-fill" id="calProgressBar"></div>
+                    </div>
+                </div>
+                <div class="cal-stats">
+                    <span class="cal-numbers" id="calTextDisplay">0 / 2200</span>
+                    <div style="font-size: 0.85rem; color: #666;">Kcal consumed</div>
+                    <button class="add-cal-btn" id="openCalModalBtn"><i class="fas fa-plus-circle"></i> Add</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="top-recipes-section">
+            <h2>Top Famous Indian Foods</h2>
+            <p class="section-sub">Popular Dishes & Calorie Data (Click to view)</p>
+            <div class="recipe-grid">
+                <div class="recipe-card" onclick="fetchAndShowTopRecipe('Chicken Biryani', 290, 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=500&auto=format&fit=crop&q=60')">
+                    <img src="https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=500&auto=format&fit=crop&q=60" alt="Chicken Biryani" class="recipe-img">
+                    <div class="recipe-details">
+                        <h4>Chicken Biryani</h4>
+                        <div class="recipe-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> Hyderabad</span>
+                            <span style="color: #e74c3c; font-weight: bold;"><i class="fas fa-fire"></i> 290 Kcal</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="recipe-card" onclick="fetchAndShowTopRecipe('Samosa', 262, 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&auto=format&fit=crop&q=60')">
+                    <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&auto=format&fit=crop&q=60" alt="Samosa" class="recipe-img">
+                    <div class="recipe-details">
+                        <h4>Samosa (2 pcs)</h4>
+                        <div class="recipe-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> North India</span>
+                            <span style="color: #e74c3c; font-weight: bold;"><i class="fas fa-fire"></i> 262 Kcal</span>
+                        </div>
+                    </div>
+                </div>
+                 <div class="recipe-card" onclick="fetchAndShowTopRecipe('Masala Dosa', 380, 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=60')">
+                    <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=60" alt="Masala Dosa" class="recipe-img">
+                    <div class="recipe-details">
+                        <h4>Masala Dosa</h4>
+                        <div class="recipe-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> South India</span>
+                            <span style="color: #e74c3c; font-weight: bold;"><i class="fas fa-fire"></i> 380 Kcal</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="recipe-card" onclick="fetchAndShowTopRecipe('Butter Chicken', 490, 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=60')">
+                    <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=60" alt="Butter Chicken" class="recipe-img">
+                    <div class="recipe-details">
+                        <h4>Butter Chicken</h4>
+                        <div class="recipe-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> Punjab</span>
+                            <span style="color: #e74c3c; font-weight: bold;"><i class="fas fa-fire"></i> 490 Kcal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <h2>How It Works</h2>
+            <p class="section-sub">Simple steps to get your perfect meal plan</p>
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-icon"><i class="fas fa-edit"></i></div>
+                    <h3>1. Input Ingredients</h3>
+                    <p>Open your fridge and list the items you currently have.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon"><i class="fas fa-magic"></i></div>
+                    <h3>2. Generate Recipes</h3>
+                    <p>Our AI finds delicious recipes that match your specific ingredients.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon"><i class="far fa-calendar-check"></i></div>
+                    <h3>3. Plan Your Week</h3>
+                    <p>Drag and drop recipes into your weekly calendar.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h2>Why Use FridgePlanner?</h2>
+            <p class="section-sub">More than just a recipe finder</p>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="fas fa-leaf" style="color: #27ae60;"></i>
+                    <h4>Reduce Waste</h4>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-wallet" style="color: #f1c40f;"></i>
+                    <h4>Save Money</h4>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-heartbeat" style="color: #e74c3c;"></i>
+                    <h4>Track Calories</h4>
+                </div>
+                 <div class="feature-item">
+                    <i class="fas fa-mobile-alt" style="color: #3498db;"></i>
+                    <h4>Mobile Friendly</h4>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-glass-card">
+            <button id="closeAuthModal" class="modal-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <div class="icon-circle">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h2 id="authTitle">Welcome Back</h2>
+                <p id="authSubtitle">Please enter your details to continue.</p>
+            </div>
+            <form id="authForm" class="auth-form">
+                <div class="input-container">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" placeholder="Email Address" required autocomplete="email">
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                </div>
+                <div class="input-container hidden" id="nameInputGroup">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="name" placeholder="Full Name">
+                </div>
+                <button type="submit" id="submitAuthBtn" class="btn-submit">Log In</button>
+            </form>
+            <div class="modal-footer" style="margin-top: 1.5rem; color: #666;">
+                <p>
+                    <span id="toggleAuthText">Don't have an account?</span>
+                    <button id="toggleAuthMode" style="background:none; border:none; color:#bf6b7a; font-weight:bold; cursor:pointer; text-decoration:underline; font-size:0.9rem;">Create one</button>
+                </p>
+                <div id="authMessage" style="color: red; margin-top: 10px; font-size: 0.9rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="calModal" class="modal-overlay">
+        <div class="modal-glass-card" style="max-width: 320px;">
+            <button class="modal-close-btn" id="closeCalModal"><i class="fas fa-times"></i></button>
+            <div class="modal-header" style="margin-bottom: 20px;">
+                 <h2>Add Calories</h2>
+                 <p>Enter the amount to track.</p>
+            </div>
+            <div class="input-container">
+                <i class="fas fa-hamburger input-icon"></i>
+                <input type="number" id="calInput" placeholder="Ex: 500" required>
+            </div>
+            <button class="btn-submit" id="saveCaloriesBtn" style="background-color: var(--accent-green);">Add</button>
+        </div>
+    </div>
+
+    <div id="savedModal" class="modal-overlay">
+        <div class="modal-glass-card modal-large-card">
+            <button class="modal-close-btn" id="closeSavedModal"><i class="fas fa-times"></i></button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 1.5rem;">
+                 <h2><i class="fas fa-bookmark" style="color: #bf6b7a;"></i> My Cookbook</h2>
+                 <p>Your collection of saved recipes.</p>
+            </div>
+            <div class="saved-recipes-container"></div>
+        </div>
+    </div>
+
+    <div id="recipeDetailModal" class="modal-overlay">
+        <div class="modal-glass-card">
+            <button class="modal-close-btn" id="closeDetailModal" style="background: white; border:1px solid #eee;"><i class="fas fa-times"></i></button>
+            
+            <div class="recipe-detail-header" id="detailHeader">
+                <div class="recipe-detail-overlay">
+                    <h2 id="detailTitle">Recipe Title</h2>
+                    <span id="detailMeta"><i class="fas fa-fire"></i> 500 Kcal</span>
+                </div>
+            </div>
+
+            <div class="recipe-detail-content">
+                <div class="detail-grid">
+                    <div class="ingredients-box">
+                        <h3><i class="fas fa-carrot"></i> Ingredients</h3>
+                        <ul id="detailIngredients"></ul>
+                    </div>
+                    <div class="instructions-box">
+                        <h3><i class="fas fa-utensils"></i> Instructions</h3>
+                        <div id="detailInstructions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="planModal" class="modal-overlay">
+        <div class="modal-glass-card modal-large-card plan-glass-bg">
+            <button class="modal-close-btn" id="closePlanModal"><i class="fas fa-times"></i></button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 1.5rem;">
+                 <h2><i class="fas fa-calendar-week" style="color: #bf6b7a;"></i> Weekly Plan</h2>
+                 <p>Design your perfect week.</p>
+            </div>
+            
+            <div class="day-navigator">
+                <button class="day-nav-btn" id="prevDayBtn"><i class="fas fa-chevron-left"></i></button>
+                <h3 id="currentDayTitle">Monday</h3>
+                <button class="day-nav-btn" id="nextDayBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="day-editor">
+                <div class="editor-section morning">
+                    <label class="editor-label"><i class="fas fa-coffee"></i> Morning</label>
+                    <textarea class="editor-textarea" id="morningInput" placeholder="Add breakfast..."></textarea>
+                </div>
+                <div class="editor-section afternoon">
+                    <label class="editor-label"><i class="fas fa-sun"></i> Afternoon</label>
+                    <textarea class="editor-textarea" id="afternoonInput" placeholder="Add lunch..."></textarea>
+                </div>
+                <div class="editor-section evening">
+                    <label class="editor-label"><i class="fas fa-moon"></i> Evening</label>
+                    <textarea class="editor-textarea" id="eveningInput" placeholder="Add dinner..."></textarea>
+                </div>
+                <button class="btn-submit" id="saveDayBtn" style="grid-column: 1 / -1; margin-top: 1rem;">Save Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>FridgePlanner</h3>
+                <p>Smart meal planning starting from your fridge. Reduce waste, save money, and eat healthier.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="homepage.html">Home</a></li>
+                    <li><a href="recipe-generator.html">Generate Recipes</a></li>
+                    <li><a href="caloriesmeter.html">Calorie Tracker</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 Fridge Planner. Designed by Aman. All rights reserved.</p>
+        </div>
+    </footer>
+
+<script>
+    // ==========================================
+    // CONFIGURATION
+    // ==========================================
+    const SUPABASE_URL = 'https://dzdrduqwkfdznkqtjuai.supabase.co'; 
+    const SUPABASE_KEY = 'sb_publishable_eHdGsaJOPDvhoUL_1sipWw_RxFvhAy2';
+    const API_BASE_URL = 'http://localhost:5000/api'; 
+
+    let supabaseClient;
+    try {
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+    } catch (e) { console.error("Supabase init error:", e); }
+
+    // Global State
+    let currentUser = null;
+    let currentSession = null;
+    let isLoginMode = true;
+    let savedRecipesData = []; 
+    // Initialize empty plan structure
+    let weeklyPlanData = { "Monday": {}, "Tuesday": {}, "Wednesday": {}, "Thursday": {}, "Friday": {}, "Saturday": {}, "Sunday": {} };
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', async () => {
+        setupAuthListeners();
+        setupProfileDropdown();
+        setupDashboardModals(); 
+        setupDataHandling();
+        
+        loadDailyCalories();
+
+        if (supabaseClient) {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            handleSessionUpdate(session);
+            supabaseClient.auth.onAuthStateChange((_event, session) => handleSessionUpdate(session));
+        }
+    });
+
+    function handleSessionUpdate(session) {
+        currentSession = session;
+        currentUser = session ? session.user : null;
+        
+        // FIX 1: Reset the plan data immediately when session changes (logout or switch user)
+        weeklyPlanData = { "Monday": {}, "Tuesday": {}, "Wednesday": {}, "Thursday": {}, "Friday": {}, "Saturday": {}, "Sunday": {} };
+        
+        updateAuthUI(session);
+        
+        if (currentUser) {
+            // Logged in: Load new data
+            loadWeeklyPlan();
+            loadDailyCalories();
+        } else {
+            // Logged out: Clear UI explicitly
+            document.getElementById('morningInput').value = "";
+            document.getElementById('afternoonInput').value = "";
+            document.getElementById('eveningInput').value = "";
+            updateCalorieUI(0, 2200);
+        }
+    }
+
+    function getAuthHeaders() {
+        if (!currentSession || !currentSession.access_token) return {};
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentSession.access_token}`
+        };
+    }
+
+    // ==========================================
+    // CALORIES
+    // ==========================================
+    async function loadDailyCalories() {
+        if(!currentSession) {
+            updateCalorieUI(0, 2200);
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/calories/today`, { 
+                headers: getAuthHeaders() 
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                updateCalorieUI(data.totalCalories, data.goal || 2200);
+            } else {
+                updateCalorieUI(0, 2200);
+            }
+        } catch (error) {
+            console.error("Error fetching calories:", error);
+            updateCalorieUI(0, 2200);
+        }
+    }
+
+    function updateCalorieUI(current, max) {
+        const percentage = Math.min((current / max) * 100, 100);
+        const bar = document.getElementById('calProgressBar');
+        const text = document.getElementById('calTextDisplay');
+        
+        if(bar) bar.style.width = `${percentage}%`;
+        if(text) text.textContent = `${current} / ${max}`;
+    }
+
+    // ==========================================
+    // RECIPES
+    // ==========================================
+    window.fetchAndShowTopRecipe = async (foodName, calories, imageUrl) => {
+        const detailModal = document.getElementById('recipeDetailModal');
+        const titleEl = document.getElementById('detailTitle');
+        const metaEl = document.getElementById('detailMeta');
+        const headerEl = document.getElementById('detailHeader');
+        const ingList = document.getElementById('detailIngredients');
+        const instBox = document.getElementById('detailInstructions');
+
+        detailModal.classList.add('open');
+        
+        titleEl.textContent = foodName;
+        metaEl.innerHTML = `<i class="fas fa-fire"></i> ${calories} Kcal`;
+        headerEl.style.backgroundImage = `url('${imageUrl}')`;
+
+        ingList.innerHTML = `<li style="justify-content:center; color:#888;"><i class="fas fa-spinner fa-spin"></i> Asking AI for ingredients...</li>`;
+        instBox.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">Generating authentic recipe steps using Groq API...</div>`;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/generate-recipe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders() 
+                },
+                body: JSON.stringify({ query: `${foodName} recipe` })
+            });
+
+            if (!response.ok) throw new Error("Failed to generate recipe");
+
+            const data = await response.json(); 
+
+            if (data.ingredients && data.ingredients.length) {
+                ingList.innerHTML = data.ingredients.map(ing => `<li>${ing}</li>`).join('');
+            } else {
+                ingList.innerHTML = `<li>Ingredients data unavailable.</li>`;
+            }
+
+            if (data.instructions && data.instructions.length) {
+                instBox.innerHTML = data.instructions.map((step, index) => `
+                    <div class="instruction-step">
+                        <div class="step-num">${index + 1}</div>
+                        <div class="step-text">${step}</div>
+                    </div>
+                `).join('');
+            } else {
+                instBox.innerHTML = `<div>Instructions unavailable.</div>`;
+            }
+
+        } catch (error) {
+            console.error("Groq/Server Error:", error);
+            ingList.innerHTML = `<li style="color:red;">Failed to load ingredients.</li>`;
+            instBox.innerHTML = `<div style="color:red;">Could not generate recipe. Please try again later.</div>`;
+        }
+    };
+
+
+    // ==========================================
+    // MODAL LOGIC
+    // ==========================================
+    function setupDashboardModals() {
+        const openSavedBtn = document.getElementById('openSavedBtn');
+        const savedModal = document.getElementById('savedModal');
+        const closeSavedModal = document.getElementById('closeSavedModal');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (openSavedBtn) {
+            openSavedBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                savedModal.classList.add('open');
+                if(profileDropdown) profileDropdown.classList.remove('show'); 
+                loadSavedRecipes(); 
+            });
+        }
+        if (closeSavedModal) closeSavedModal.addEventListener('click', () => savedModal.classList.remove('open'));
+
+        const openPlanBtn = document.getElementById('openPlanBtn');
+        const planModal = document.getElementById('planModal');
+        const closePlanModal = document.getElementById('closePlanModal');
+
+        if (openPlanBtn) {
+            openPlanBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                planModal.classList.add('open');
+                if(profileDropdown) profileDropdown.classList.remove('show'); 
+            });
+        }
+        if (closePlanModal) closePlanModal.addEventListener('click', () => planModal.classList.remove('open'));
+
+        const detailModal = document.getElementById('recipeDetailModal');
+        const closeDetail = document.getElementById('closeDetailModal');
+        if(closeDetail) closeDetail.addEventListener('click', () => detailModal.classList.remove('open'));
+        
+        const openCalBtn = document.getElementById('openCalModalBtn');
+        const calModal = document.getElementById('calModal');
+        const closeCal = document.getElementById('closeCalModal');
+        const saveCalBtn = document.getElementById('saveCaloriesBtn');
+        
+        if(openCalBtn) openCalBtn.addEventListener('click', () => calModal.classList.add('open'));
+        if(closeCal) closeCal.addEventListener('click', () => calModal.classList.remove('open'));
+        
+        if(saveCalBtn) {
+            saveCalBtn.addEventListener('click', async () => {
+                const amount = document.getElementById('calInput').value;
+                if(!amount) return;
+                
+                const currentText = document.getElementById('calTextDisplay').textContent;
+                let currentVal = parseInt(currentText.split('/')[0]) || 0;
+                updateCalorieUI(currentVal + parseInt(amount), 2200);
+                calModal.classList.remove('open');
+
+                try {
+                      await fetch(`${API_BASE_URL}/calories/add`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ amount: parseInt(amount) })
+                      });
+                      loadDailyCalories(); 
+                } catch(e) { console.error(e); }
+            });
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target === savedModal) savedModal.classList.remove('open');
+            if (e.target === planModal) planModal.classList.remove('open');
+            if (e.target === detailModal) detailModal.classList.remove('open');
+            if (e.target === calModal) calModal.classList.remove('open');
+        });
+    }
+
+    // ==========================================
+    // SAVED RECIPES
+    // ==========================================
+    async function loadSavedRecipes() {
+        const listContainer = document.querySelector('.saved-recipes-container');
+        
+        if (!currentSession) {
+            listContainer.innerHTML = '<p style="padding:1rem; text-align:center;">Please login.</p>';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/recipes`, { headers: getAuthHeaders() });
+
+            if (res.ok) {
+                const data = await res.json();
+                savedRecipesData = data; 
+
+                if (data.length === 0) {
+                    listContainer.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#888;">No saved recipes found.</p>';
+                    return;
+                }
+
+                listContainer.innerHTML = data.map(recipe => `
+                    <div class="saved-card-premium">
+                        <img src="${recipe.image || 'https://via.placeholder.com/150'}" class="saved-card-img" alt="${recipe.title}">
+                        <div class="saved-card-content">
+                            <h4>${recipe.title}</h4>
+                            <div class="saved-card-meta">
+                                <span><i class="fas fa-fire"></i> ${recipe.calories || 'N/A'} Kcal</span>
+                            </div>
+                            <div class="saved-card-actions">
+                                <button class="btn-view" onclick="openRecipeDetails('${recipe._id}')">
+                                    <i class="fas fa-utensils"></i> Cook Now
+                                </button>
+                                <button class="btn-delete-icon" onclick="deleteRecipe('${recipe._id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (err) {
+            console.error("Error loading recipes:", err);
+            listContainer.innerHTML = '<p style="color:red; text-align:center;">Failed to load recipes.</p>';
+        }
+    }
+
+    window.openRecipeDetails = (id) => {
+        const recipe = savedRecipesData.find(r => r._id === id);
+        if(!recipe) return;
+
+        document.getElementById('detailTitle').textContent = recipe.title;
+        document.getElementById('detailHeader').style.backgroundImage = `url('${recipe.image || 'https://via.placeholder.com/600'}')`;
+        document.getElementById('detailMeta').innerHTML = `<i class="fas fa-fire"></i> ${recipe.calories || 'Unknown'} Calories`;
+
+        const ingList = document.getElementById('detailIngredients');
+        if (recipe.ingredients && recipe.ingredients.length > 0) {
+            ingList.innerHTML = recipe.ingredients.map(ing => `<li>${ing}</li>`).join('');
+        } else {
+            ingList.innerHTML = `
+                <li>Salt & Pepper</li>
+                <li>Main Protein (Chicken/Paneer)</li>
+                <li>Spices (Cumin, Turmeric)</li>
+                <li>Oil or Butter</li>
+                <li style="color:#999; font-style:italic;">(Ingredients data not found in saved record)</li>
+            `;
+        }
+
+        const instBox = document.getElementById('detailInstructions');
+        if (recipe.instructions && recipe.instructions.length > 0) {
+            instBox.innerHTML = recipe.instructions.map((step, index) => `
+                <div class="instruction-step">
+                    <div class="step-num">${index + 1}</div>
+                    <div class="step-text">${step}</div>
+                </div>
+            `).join('');
+        } else {
+            instBox.innerHTML = `
+                <div class="instruction-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Prepare your ingredients by chopping vegetables and marinating the protein.</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">Heat pan over medium heat. Cook ingredients thoroughly until golden brown.</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">Serve hot and enjoy!</div>
+                </div>
+            `;
+        }
+        document.getElementById('recipeDetailModal').classList.add('open');
+    };
+
+    window.deleteRecipe = async (id) => {
+        if(!confirm("Remove this recipe from your cookbook?")) return;
+        try {
+            await fetch(`${API_BASE_URL}/recipes/delete`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ recipeId: id })
+            });
+            loadSavedRecipes(); 
+        } catch(e) { console.error(e); }
+    };
+
+    // ==========================================
+    // OTHER UTILITIES (Auth, Profile, Planner)
+    // ==========================================
+    function setupProfileDropdown() {
+        const profileBtn = document.getElementById('profileToggleBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation(); 
+                profileDropdown.classList.toggle('show');
+            });
+            window.addEventListener('click', (e) => {
+                if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.remove('show');
+                }
+            });
+        }
+    }
+
+    function setupAuthListeners() {
+        const navLoginBtn = document.getElementById('navLoginBtn');
+        const navSignOutBtn = document.getElementById('navSignOutBtn');
+        const closeAuthModal = document.getElementById('closeAuthModal');
+        const toggleAuthMode = document.getElementById('toggleAuthMode');
+        const authForm = document.getElementById('authForm');
+        
+        if (navLoginBtn) navLoginBtn.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('authModal').classList.add('open'); });
+        if (navSignOutBtn) navSignOutBtn.addEventListener('click', async (e) => { e.preventDefault(); if(supabaseClient) await supabaseClient.auth.signOut(); });
+        if (closeAuthModal) closeAuthModal.addEventListener('click', () => document.getElementById('authModal').classList.remove('open'));
+        if (toggleAuthMode) toggleAuthMode.addEventListener('click', () => { isLoginMode = !isLoginMode; updateModalMode(); });
+        if (authForm) authForm.addEventListener('submit', handleAuthSubmit);
+    }
+
+    async function handleAuthSubmit(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('submitAuthBtn');
+        const msg = document.getElementById('authMessage');
+        const fullName = document.getElementById('name').value;
+
+        btn.disabled = true; btn.textContent = 'Processing...'; msg.textContent = '';
+        try {
+            if (isLoginMode) {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                document.getElementById('authModal').classList.remove('open');
+            } else {
+                const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+                if (error) throw error;
+                msg.textContent = "Check email for confirmation!";
+            }
+        } catch (err) { msg.textContent = err.message; }
+        finally { btn.disabled = false; btn.textContent = isLoginMode ? 'Log In' : 'Sign Up'; }
+    }
+
+    function updateModalMode() {
+        document.getElementById('authTitle').textContent = isLoginMode ? "Welcome Back" : "Create Account";
+        document.getElementById('submitAuthBtn').textContent = isLoginMode ? "Log In" : "Sign Up";
+        document.getElementById('toggleAuthText').textContent = isLoginMode ? "Don't have an account?" : "Already have an account?";
+        document.getElementById('toggleAuthMode').textContent = isLoginMode ? "Create one" : "Log In";
+        document.getElementById('nameInputGroup').classList.toggle('hidden', isLoginMode);
+    }
+
+    function updateAuthUI(session) {
+        const loginLi = document.getElementById('loginLi-disabled');
+        const profileLi = document.getElementById('profileLi-active');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userAvatar = document.getElementById('userAvatar');
+
+        if (session) {
+            loginLi.classList.add('hidden'); 
+            profileLi.classList.remove('hidden');
+            
+            document.querySelector('.user-email').textContent = session.user.email;
+            
+            const metaName = session.user.user_metadata?.full_name;
+            const emailName = session.user.email.split('@')[0];
+            const finalName = metaName || emailName;
+            
+            if(userNameDisplay) {
+                userNameDisplay.textContent = finalName.charAt(0).toUpperCase() + finalName.slice(1);
+            }
+            if(userAvatar) {
+                userAvatar.textContent = finalName.charAt(0).toUpperCase();
+            }
+
+        } else {
+            loginLi.classList.remove('hidden'); 
+            profileLi.classList.add('hidden');
+        }
+    }
+
+    // ==========================================
+    // PLANNER LOGIC (FIXED)
+    // ==========================================
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    let currentDayIndex = 0;
+
+    function setupDataHandling() {
+        // FIX: Update local data BEFORE switching index so edits aren't lost
+        document.getElementById('prevDayBtn').addEventListener('click', () => { 
+            updateLocalData(); 
+            currentDayIndex = (currentDayIndex - 1 + 7) % 7; 
+            renderDay(); 
+        });
+        document.getElementById('nextDayBtn').addEventListener('click', () => { 
+            updateLocalData(); 
+            currentDayIndex = (currentDayIndex + 1) % 7; 
+            renderDay(); 
+        });
+        document.getElementById('saveDayBtn').addEventListener('click', saveWeeklyPlanToDB);
+    }
+
+    function renderDay() {
+        const day = days[currentDayIndex];
+        document.getElementById('currentDayTitle').textContent = day;
+        document.getElementById('morningInput').value = weeklyPlanData[day].morning || "";
+        document.getElementById('afternoonInput').value = weeklyPlanData[day].afternoon || "";
+        document.getElementById('eveningInput').value = weeklyPlanData[day].evening || "";
+    }
+    
+    function updateLocalData() {
+        const day = days[currentDayIndex];
+        // Ensure the day object exists before setting properties
+        if (!weeklyPlanData[day]) weeklyPlanData[day] = {};
+        
+        weeklyPlanData[day] = {
+            morning: document.getElementById('morningInput').value,
+            afternoon: document.getElementById('afternoonInput').value,
+            evening: document.getElementById('eveningInput').value
+        };
+    }
+    
+    async function loadWeeklyPlan() {
+        if(!currentSession) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/plan`, { headers: getAuthHeaders() });
+            if(res.ok) {
+                const data = await res.json();
+                
+                // FIX: Clear existing data before populating
+                weeklyPlanData = { "Monday": {}, "Tuesday": {}, "Wednesday": {}, "Thursday": {}, "Friday": {}, "Saturday": {}, "Sunday": {} };
+                
+                data.forEach(p => {
+                    if (p.day) weeklyPlanData[p.day] = p;
+                });
+                
+                // FIX: Force render immediately after data load
+                renderDay();
+            }
+        } catch(e) { console.error("Plan load error:", e); }
+    }
+    
+    async function saveWeeklyPlanToDB() {
+        updateLocalData();
+        const day = days[currentDayIndex];
+        const btn = document.getElementById('saveDayBtn');
+        btn.textContent = "Saving...";
+        try {
+            await fetch(`${API_BASE_URL}/plan`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ day, ...weeklyPlanData[day] })
+            });
+            alert("Plan saved!");
+        } catch(e) { alert("Error saving."); }
+        finally { btn.textContent = "Save Plan"; }
+    }
+</script>
+</body>
+</html>

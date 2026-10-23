@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriPlus - 40 Essentials</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* =========================================
+           1. PREMIUM THEME VARIABLES
+           ========================================= */
+        :root {
+            --bg-base: #fdfbf7;
+            --bg-gradient-1: #fae3d9;
+            --bg-gradient-2: #ffd1d1;
+            
+            --primary-rose: #bf6b7a;       
+            --primary-rose-hover: #a6505f; 
+            --primary-rose-light: #fff0f3;
+            
+            --accent-green: #2ecc71;       
+            --accent-green-dark: #27ae60;
+            --accent-green-light: #e8f8f0;
+            
+            --dried-thyme: #6B7556; 
+            --text-dark: #1e272e;
+            --text-muted: #636E72;
+            
+            --bg-card: #FFFFFF;
+            --radius-card: 20px; 
+            --radius-pill: 50px;
+            
+            --shadow-subtle: 0 10px 40px -10px rgba(191, 107, 122, 0.1);
+            --shadow-float: 0 20px 50px -12px rgba(191, 107, 122, 0.25);
+            --shadow-nav: 0 4px 20px rgba(0, 0, 0, 0.04);
+            
+            --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, var(--bg-gradient-1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, var(--bg-gradient-2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, var(--bg-gradient-1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+        .hidden { display: none !important; }
+
+        /* =========================================
+           2. NAVBAR (UPDATED LOGO & ICONS)
+           ========================================= */
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 2000;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-nav);
+            border-bottom: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .header-container {
+            max-width: 1400px; margin: 0 auto; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; transition: transform 0.3s; flex-shrink: 0; }
+        .logo:hover { transform: scale(1.05); }
+        
+        .logo img {
+            border-radius: 50%; border: 2px solid white;
+            padding: 0; background: white;
+            box-shadow: 0 4px 10px rgba(191, 107, 122, 0.2);
+        }
+
+        .logo h1 { 
+            font-size: 1.5rem; color: var(--text-dark); font-weight: 800; letter-spacing: -0.5px; 
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary-rose) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .main-nav ul { display: flex; gap: 2.5rem; align-items: center; } 
+        
+        .main-nav a:not(.btn-primary) {
+            color: var(--text-dark); font-weight: 600; font-size: 0.95rem;
+            padding: 0.5rem 0; position: relative; opacity: 0.7; transition: 0.3s;
+            display: flex; align-items: center; gap: 8px; 
+        }
+        .main-nav a:not(.btn-primary):hover, .main-nav a.active { opacity: 1; color: var(--primary-rose); }
+        .main-nav a:not(.btn-primary)::after {
+            content: ''; position: absolute; bottom: -2px; left: 0;
+            width: 0%; height: 2px; background: var(--primary-rose);
+            border-radius: 2px; transition: 0.3s ease;
+        }
+        .main-nav a:not(.btn-primary):hover::after, .main-nav a.active::after { width: 100%; }
+
+        .btn-primary {
+            background: var(--primary-rose); color: white; border: none;
+            padding: 12px 28px; border-radius: var(--radius-pill);
+            cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(191, 107, 122, 0.3);
+            transition: var(--transition-bounce);
+            font-size: 0.9rem; position: relative; overflow: hidden;
+        }
+        .btn-primary:hover {
+            background: var(--primary-rose-hover); transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(191, 107, 122, 0.4);
+        }
+        .small-btn { padding: 10px 24px; font-size: 0.9rem; }
+
+        /* Profile Dropdown */
+        .profile-menu { position: relative; z-index: 2001; }
+        .profile-btn {
+            background: white; border: 1px solid rgba(0,0,0,0.08); cursor: pointer;
+            padding: 4px 16px 4px 4px; border-radius: 50px;
+            display: flex; align-items: center; gap: 10px; font-weight: 600;
+            transition: 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .profile-btn:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .profile-initials {
+            width: 34px; height: 34px; border-radius: 50%; 
+            background: var(--primary-rose); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .dropdown-content {
+            display: none; position: absolute; right: 0; top: 125%; margin-top: 10px;
+            background: white; min-width: 240px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            z-index: 9999; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden; 
+        }
+        .dropdown-content.show { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUpMobile { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .dropdown-header { padding: 16px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .user-email { font-size: 0.85rem; color: #666; font-weight: 500; }
+        .dropdown-content a { color: #444; padding: 14px 20px; display: flex; gap: 10px; align-items: center; transition: 0.2s; font-size: 0.9rem; font-weight: 500; }
+        .dropdown-content a:hover { background: #fff0f3; color: var(--primary-rose); padding-left: 24px; }
+
+        /* =========================================
+           3. 5-COLUMN NUTRI GRID (DETAILED CARDS)
+           ========================================= */
+        main { max-width: 1600px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+        
+        .page-header { text-align: center; margin-bottom: 4rem; }
+        .page-header h2 { font-size: 3rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.5rem; letter-spacing: -1px; }
+        .page-header h2 span { color: var(--primary-rose); }
+        .page-header p { font-size: 1.2rem; color: var(--text-muted); }
+
+        .nutri-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 Columns as requested */
+            gap: 1.5rem;
+        }
+
+        .nutri-card {
+            background: white; border-radius: 20px; overflow: hidden;
+            box-shadow: var(--shadow-subtle); border: 1px solid rgba(0,0,0,0.03);
+            transition: var(--transition-bounce); display: flex; flex-direction: column;
+            height: 100%; position: relative;
+        }
+        .nutri-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-float); }
+
+        .card-header { position: relative; height: 160px; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; background-color: #eee; }
+        .nutri-card:hover .card-img { transform: scale(1.05); }
+        
+        .type-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 2;
+        }
+        .type-Protein { color: #e17055; }
+        .type-Vitamin { color: #00b894; }
+        .type-Carbs { color: #fdcb6e; }
+        .type-Fats { color: #6c5ce7; }
+
+        .card-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        
+        .stat-row { 
+            display: flex; justify-content: space-between; margin-bottom: 6px; 
+            font-size: 0.85rem; color: var(--text-dark); border-bottom: 1px dashed #eee; padding-bottom: 4px;
+        }
+        .stat-label { color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        .stat-val { font-weight: 700; text-align: right; }
+
+        .why-good {
+            margin-top: auto; padding-top: 10px; 
+            background: #fafafa; border-radius: 10px; padding: 10px;
+            border-left: 3px solid var(--primary-rose);
+        }
+        .why-label { font-size: 0.7rem; font-weight: 800; color: var(--primary-rose); display: block; margin-bottom: 3px; text-transform: uppercase; }
+        .why-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.3; font-style: italic; }
+
+        /* =========================================
+           4. MODALS & NEW FEATURES STYLES
+           ========================================= */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.open { display: flex; }
+        
+        .modal-glass-card {
+            background: white; padding: 2.5rem; border-radius: 20px; width: 90%; max-width: 400px; 
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); position: relative;
+        }
+        .modal-large-card { max-width: 900px; padding: 2rem; text-align: left; width: 95%; }
+
+        .modal-close-btn {
+            position: absolute; top: 15px; right: 15px; background: #f1f1f1;
+            border: none; width: 32px; height: 32px; border-radius: 50%;
+            cursor: pointer; color: #636e72; transition: 0.3s; display: flex; align-items: center; justify-content: center; z-index: 10;
+        }
+        .modal-close-btn:hover { background: var(--primary-rose); color: white; transform: rotate(90deg); }
+
+        .icon-circle {
+            width: 60px; height: 60px; background: var(--primary-rose-light); color: var(--primary-rose);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin: 0 auto 1.2rem;
+        }
+        
+        .auth-form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+        .input-container { position: relative; }
+        .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #b2bec3; font-size: 0.9rem; }
+        .auth-input { 
+            width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #ddd; 
+            border-radius: 10px; outline: none; font-size: 0.95rem; transition: 0.3s;
+        }
+        .auth-input:focus { border-color: var(--primary-rose); box-shadow: 0 0 0 3px var(--primary-rose-light); }
+
+        /* Saved Recipes Styles */
+        .saved-recipes-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; max-height: 60vh; overflow-y: auto; padding: 10px; }
+        .saved-card-premium {
+            background: white; border-radius: 20px; padding: 15px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .saved-card-premium:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(191, 107, 122, 0.2); border-color: var(--primary-rose-light); }
+        .saved-card-img { width: 90px; height: 90px; border-radius: 15px; object-fit: cover; }
+        .saved-card-content { flex: 1; }
+        .saved-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-view { flex: 1; padding: 8px; background: var(--primary-rose); color: white; border: none; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+        .btn-delete-icon { width: 32px; height: 32px; border: 1px solid #ffecec; background: #fff5f5; color: #ff6b6b; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* Planner Styles */
+        .day-navigator { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 2rem; background: #fdf2f4; padding: 8px 15px; border-radius: 60px; 
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #fae3d9;
+        }
+        .day-nav-btn { 
+            background: white; border: none; width: 45px; height: 45px; border-radius: 50%; 
+            box-shadow: 0 4px 10px rgba(191, 107, 122, 0.15); cursor: pointer; color: var(--primary-rose); transition: 0.3s;
+        }
+        .day-nav-btn:hover { background: var(--primary-rose); color: white; transform: scale(1.1); }
+        #currentDayTitle { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; }
+
+        .day-editor { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; 
+        }
+        @media(max-width: 768px) { .day-editor { grid-template-columns: 1fr; } }
+        
+        .editor-section { 
+            background: #fff; padding: 1.2rem; border-radius: 16px; 
+            border: 1px solid #eee; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.3s;
+            display: flex; flex-direction: column; height: 100%;
+        }
+        .editor-section.morning { border-top: 4px solid #f1c40f; background: linear-gradient(to bottom, #fffdf5, #fff); }
+        .editor-section.afternoon { border-top: 4px solid #27ae60; background: linear-gradient(to bottom, #f0fdf4, #fff); }
+        .editor-section.evening { border-top: 4px solid #3498db; background: linear-gradient(to bottom, #f0fdf4, #fff); }
+        
+        .editor-label { display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 700; color: #555; margin-bottom: 12px; }
+        .editor-textarea { 
+            width: 100%; flex: 1; padding: 12px; border: 1px solid rgba(0,0,0,0.08); 
+            border-radius: 10px; resize: none; background: white; font-family: inherit; font-size: 0.95rem;
+            transition: 0.3s; min-height: 80px;
+        }
+
+        /* Recipe Detail Modal */
+        #recipeDetailModal .modal-glass-card { max-width: 900px; height: 85vh; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+        .recipe-detail-header { height: 250px; background-size: cover; background-position: center; position: relative; }
+        .recipe-detail-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: white; text-align: left; }
+        .recipe-detail-content { padding: 30px; overflow-y: auto; text-align: left; flex: 1; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .ingredients-box { background: #fffbfb; padding: 20px; border-radius: 15px; border: 1px solid #fcebeb; }
+        .ingredients-box li { padding: 8px 0; border-bottom: 1px solid #eee; display: flex; gap: 8px; font-size: 0.9rem; }
+        .ingredients-box li::before { content: "•"; color: var(--primary-rose); font-weight: bold; }
+        .instruction-step { margin-bottom: 20px; display: flex; gap: 15px; }
+        .step-num { min-width: 30px; height: 30px; background: var(--text-dark); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        footer { margin-top: 6rem; padding: 2rem; text-align: center; color: var(--text-muted); border-top: 1px solid #eee; }
+
+        /* =========================================
+           MOBILE RESPONSIVENESS FIXES
+           ========================================= */
+        @media (max-width: 1400px) { .nutri-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 1100px) { .nutri-grid { grid-template-columns: repeat(3, 1fr); } }
+        
+        @media (max-width: 900px) {
+            .header-container { flex-direction: column; gap: 1rem; padding: 0.5rem 1rem; }
+            .main-nav { width: 100%; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+            .main-nav ul { width: max-content; margin: 0 auto; gap: 1.5rem; padding: 0 10px; }
+            
+            /* FIX: Profile Dropdown on Mobile (Bottom Sheet Style) */
+            .profile-menu .dropdown-content {
+                position: fixed !important;
+                top: auto !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                margin-top: 0;
+                border-radius: 24px 24px 0 0;
+                border: none;
+                box-shadow: 0 -10px 50px rgba(0,0,0,0.2);
+                padding-bottom: 20px;
+                animation: slideUpMobile 0.3s ease-out;
+                z-index: 10000;
+                background: white !important;
+            }
+            .profile-menu .dropdown-content.show { display: block !important; }
+
+            .nutri-grid { grid-template-columns: repeat(2, 1fr); }
+            .page-header h2 { font-size: 2.5rem; }
+            .modal-large-card { width: 95%; height: 90vh; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .recipe-detail-header { height: 180px; }
+        }
+
+        @media (max-width: 600px) {
+            .main-nav ul { gap: 1rem; }
+            .main-nav a:not(.btn-primary) { font-size: 0.85rem; }
+            .btn-primary { padding: 8px 20px; font-size: 0.85rem; }
+            
+            .nutri-grid { grid-template-columns: 1fr; } /* 1 Column on very small screens */
+            .modal-glass-card { width: 95%; padding: 1.5rem; }
+            .day-navigator { flex-direction: row; gap: 5px; } 
+            .day-nav-btn { width: 35px; height: 35px; }
+            #currentDayTitle { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="homepage.html" class="logo">
+                <img src="https://i.pinimg.com/1200x/5b/4a/51/5b4a516498ad17b281169384b714a635.jpg" alt="logo" width="45" height="45">
+                <h1>FridgePlanner</h1>
+            </a>
+            
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="homepage.html"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                    <li><a href="caloriesmeter.html"><i class="fas fa-fire"></i> <span>Calories</span></a></li>
+                    <li><a href="recipe-generator.html"><i class="fas fa-utensils"></i> <span>Recipes</span></a></li>
+                    <li><a href="NutriPlus.html" class="active"><i class="fas fa-leaf"></i> <span>NutriPlus</span></a></li>
+                    
+                    <li id="loginLi-disabled">
+                        <button class="btn-primary small-btn" id="navLoginBtn">Login</button>
+                    </li>
+                    
+                    <li id="profileLi-active" class="hidden">
+                        <div class="profile-menu">
+                            <button class="profile-btn" id="profileToggleBtn">
+                                <div class="profile-initials" id="userAvatar">U</div>
+                                <span id="userNameDisplay">Profile</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-content" id="profileDropdown">
+                                <div class="dropdown-header">
+                                    <p class="user-email">user@example.com</p>
+                                </div>
+                                <a href="homepage.html" ><i class="fas fa-heart"></i> Saved Recipes</a>
+                                <a href="homepage.html" ><i class="fas fa-calendar-alt"></i> Weekly Plan</a>
+                                <hr style="margin: 0; border: 0; border-top: 1px solid #eee;">
+                                <a href="#" id="navSignOutBtn" style="color:#e74c3c"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h2>NutriPlus <span>Essentials</span></h2>
+            <p>40 Powerhouse foods to supercharge your diet. Sorted by nutrition type.</p>
+        </div>
+
+        <div class="nutri-grid" id="nutriGrid">
+            </div>
+    </main>
+
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-glass-card">
+            <button id="closeAuthModal" class="modal-close-btn"><i class="fas fa-times"></i></button>
+            <div class="icon-circle">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h2 id="authTitle" style="margin-bottom:5px; color:var(--text-dark);">Welcome Back</h2>
+            <p style="color:var(--text-muted); margin-bottom:1rem;">Login to access features.</p>
+            <form id="authForm" class="auth-form">
+                <div class="input-container">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" class="auth-input" placeholder="Email Address" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" class="auth-input" placeholder="Password" required>
+                </div>
+                <button type="submit" id="submitAuthBtn" class="btn-primary" style="width:100%;">Log In</button>
+            </form>
+            <p style="margin-top:1.5rem; font-size:0.9rem; color:var(--text-muted);">
+                <span id="toggleAuthText">Don't have an account?</span>
+                <button id="toggleAuthMode" style="background:none; border:none; color:var(--primary-rose); font-weight:bold; cursor:pointer;">Create one</button>
+            </p>
+            <div id="authMessage" style="color:red; margin-top:5px;"></div>
+        </div>
+    </div>
+
+    <div id="savedModal" class="modal-overlay">
+        <div class="modal-glass-card modal-large-card">
+            <button class="modal-close-btn" id="closeSavedModal"><i class="fas fa-times"></i></button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 1.5rem;">
+                 <h2 style="font-size: 1.8rem;"><i class="fas fa-bookmark" style="color: #bf6b7a;"></i> My Cookbook</h2>
+                 <p style="color: #666;">Your collection of saved recipes.</p>
+            </div>
+            <div class="saved-recipes-container"></div>
+        </div>
+    </div>
+
+    <div id="planModal" class="modal-overlay">
+        <div class="modal-glass-card modal-large-card">
+            <button class="modal-close-btn" id="closePlanModal"><i class="fas fa-times"></i></button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 1.5rem;">
+                 <h2 style="font-size: 1.8rem;"><i class="fas fa-calendar-week" style="color: #bf6b7a;"></i> Weekly Plan</h2>
+                 <p style="color: #666;">Design your perfect week.</p>
+            </div>
+            
+            <div class="day-navigator">
+                <button class="day-nav-btn" id="prevDayBtn"><i class="fas fa-chevron-left"></i></button>
+                <h3 id="currentDayTitle">Monday</h3>
+                <button class="day-nav-btn" id="nextDayBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="day-editor">
+                <div class="editor-section morning">
+                    <label class="editor-label"><i class="fas fa-coffee"></i> Morning</label>
+                    <textarea class="editor-textarea" id="morningInput" placeholder="Add breakfast..."></textarea>
+                </div>
+                <div class="editor-section afternoon">
+                    <label class="editor-label"><i class="fas fa-sun"></i> Afternoon</label>
+                    <textarea class="editor-textarea" id="afternoonInput" placeholder="Add lunch..."></textarea>
+                </div>
+                <div class="editor-section evening">
+                    <label class="editor-label"><i class="fas fa-moon"></i> Evening</label>
+                    <textarea class="editor-textarea" id="eveningInput" placeholder="Add dinner..."></textarea>
+                </div>
+                <button class="btn-primary" id="saveDayBtn" style="grid-column: 1 / -1; margin-top: 1rem; width: 100%;">Save Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recipeDetailModal" class="modal-overlay">
+        <div class="modal-glass-card">
+            <button class="modal-close-btn" id="closeDetailModal" style="background: white; border:1px solid #eee;"><i class="fas fa-times"></i></button>
+            
+            <div class="recipe-detail-header" id="detailHeader">
+                <div class="recipe-detail-overlay">
+                    <h2 id="detailTitle" style="color:white; font-size: 2rem;">Recipe Title</h2>
+                    <span id="detailMeta" style="color:white; font-weight:bold;"><i class="fas fa-fire"></i> 500 Kcal</span>
+                </div>
+            </div>
+
+            <div class="recipe-detail-content">
+                <div class="detail-grid">
+                    <div class="ingredients-box">
+                        <h3 style="margin-bottom:10px;"><i class="fas fa-carrot"></i> Ingredients</h3>
+                        <ul id="detailIngredients"></ul>
+                    </div>
+                    <div class="instructions-box">
+                        <h3 style="margin-bottom:10px;"><i class="fas fa-utensils"></i> Instructions</h3>
+                        <div id="detailInstructions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        // --- 1. DATA: 40 ITEMS (FULL LIST with UNPLASH IDs) ---
+        const foodItems = [
+            // PROTEIN (10)
+            { name: "Eggs", type: "Protein", img: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=500", p: "6g/egg", v: "A, B12, D", why: "Complete protein, affordable, and versatile." },
+            { name: "Paneer", type: "Protein", img: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500", p: "18g/100g", v: "Calcium, A", why: "Great vegetarian protein source, rich in calcium." },
+            { name: "Chicken Breast", type: "Protein", img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=500", p: "31g/100g", v: "B6, Niacin", why: "Lean muscle builder with very low fat." },
+            { name: "Greek Yogurt", type: "Protein", img: "https://images.unsplash.com/photo-1488477181946-6428a029177b?w=500", p: "10g/100g", v: "B12, Probiotics", why: "Excellent for gut health and muscle repair." },
+            { name: "Salmon", type: "Protein", img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500", p: "20g/100g", v: "D, Omega-3", why: "Brain food rich in healthy fats." },
+            { name: "Tofu", type: "Protein", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500", p: "8g/100g", v: "Iron, Calcium", why: "Versatile plant protein, cholesterol-free." },
+            { name: "Lentils", type: "Protein", img: "https://images.unsplash.com/photo-1515543237350-b3eca475d43d?w=500", p: "9g/100g", v: "Folate, Iron", why: "High fiber and protein combo for heart health." },
+            { name: "Chickpeas", type: "Protein", img: "https://images.unsplash.com/photo-1585937421612-70a008356f36?w=500", p: "19g/100g", v: "B6, Magnesium", why: "Filling and great for hummus or salads." },
+            { name: "Edamame", type: "Protein", img: "https://images.unsplash.com/photo-1557160350-aa3356079782?w=500", p: "11g/100g", v: "K, Folate", why: "Complete plant protein snack." },
+            { name: "Whey Protein", type: "Protein", img: "https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=500", p: "24g/scoop", v: "BCAAs", why: "Fast absorption post-workout recovery." },
+
+            // VITAMINS (10)
+            { name: "Spinach", type: "Vitamin", img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=500", p: "2.9g", v: "A, C, K, Iron", why: "Superfood for blood health and immunity." },
+            { name: "Broccoli", type: "Vitamin", img: "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=500", p: "2.8g", v: "C, K", why: "Cancer-fighting properties and fiber." },
+            { name: "Carrots", type: "Vitamin", img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500", p: "0.9g", v: "A (Beta Carotene)", why: "Essential for eye health and skin glow." },
+            { name: "Bell Peppers", type: "Vitamin", img: "https://images.unsplash.com/photo-1563565375-f3fdf5efa269?w=500", p: "1g", v: "Very High Vit C", why: "Boosts collagen and immunity instantly." },
+            { name: "Oranges", type: "Vitamin", img: "https://images.unsplash.com/photo-1547514701-42782101795e?w=500", p: "0.9g", v: "C, Folate", why: "Hydrating and immune boosting." },
+            { name: "Blueberries", type: "Vitamin", img: "https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=500", p: "0.7g", v: "C, K, Antioxidants", why: "Brain boosting and anti-aging properties." },
+            { name: "Tomatoes", type: "Vitamin", img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500", p: "0.9g", v: "Lycopene, C", why: "Heart health and skin protection." },
+            { name: "Mushrooms", type: "Vitamin",  p: "3g", v: "D, Selenium", why: "Supports immune system and bone health." },
+            { name: "Kale", type: "Vitamin", img: "https://images.unsplash.com/photo-1524179091875-bf99a9a6af57?w=500", p: "4.3g", v: "A, K, C", why: "Nutrient dense leafy green powerhouse." },
+            { name: "Beetroot", type: "Vitamin", img: "https://images.unsplash.com/photo-1593105544559-ecb03bf71f60?w=500", p: "1.6g", v: "Folate, Manganese", why: "Improves blood flow and lowers blood pressure." },
+
+            // CARBS (10)
+            { name: "Sweet Potato", type: "Carbs", img: "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=500", p: "1.6g", v: "A, Fiber", why: "Slow energy release, good for diabetics." },
+            { name: "Oats", type: "Carbs", p: "16.9g", v: "Fiber, Iron", why: "Lowers cholesterol and keeps you full." },
+            { name: "Quinoa", type: "Carbs", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500", p: "4g", v: "Complete Protein", why: "The only grain that is a complete protein." },
+            { name: "Brown Rice", type: "Carbs", img: "https://images.unsplash.com/photo-1597423244039-959c986dc51e?w=500", p: "2.6g", v: "B1, B6, Magnesium", why: "Better digestion than white rice." },
+            { name: "Bananas", type: "Carbs", img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500", p: "1.1g", v: "Potassium, B6", why: "Perfect pre-workout energy boost." },
+            { name: "Apples", type: "Carbs", img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=500", p: "0.3g", v: "Fiber, C", why: "Gut health and blood sugar regulation." },
+            { name: "Kidney Beans", type: "Carbs", img: "https://images.unsplash.com/photo-1551462147-37885acc36f1?w=500", p: "24g", v: "Folate, Iron", why: "High fiber protein-carb combo." },
+            { name: "Whole Wheat", type: "Carbs", img: "https://images.unsplash.com/photo-1508226079930-819cc763b320?w=500", p: "13g", v: "Fiber, B Vitamins", why: "Digestive health and sustained energy." },
+            { name: "Pumpkin", type: "Carbs", img: "https://images.unsplash.com/photo-1570586437263-160f0d1e81f3?w=500", p: "1g", v: "A, E", why: "Low calorie filling carb source." },
+            { name: "Corn", type: "Carbs", img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=500", p: "3g", v: "B12, C", why: "Good energy source and antioxidants." },
+
+            // FATS (10)
+            { name: "Almonds", type: "Fats", img: "https://images.unsplash.com/photo-1508061253366-f7da158b6d6b?w=500", p: "21g", v: "E, Magnesium", why: "Heart health and skin protection." },
+            { name: "Walnuts", type: "Fats", img: "https://images.unsplash.com/photo-1590005273570-357d6d338ce0?w=500", p: "15g", v: "Omega-3", why: "Top nut for brain health." },
+            { name: "Avocado", type: "Fats", img: "https://images.unsplash.com/photo-1523049673856-3843504d7c10?w=500", p: "2g", v: "K, E, C", why: "Monounsaturated fats reduce inflammation." },
+            { name: "Chia Seeds", type: "Fats", img: "https://images.unsplash.com/photo-1620917670397-a7d18ee95a97?w=500", p: "17g", v: "Calcium, Fiber", why: "High energy endurance food." },
+            { name: "Flax Seeds", type: "Fats", img: "https://images.unsplash.com/photo-1613768393356-0772714441e9?w=500", p: "18g", v: "Omega-3, Lignans", why: "Hormone balance and digestion." },
+            { name: "Olive Oil", type: "Fats", img: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500", p: "0g", v: "E, K", why: "Cornerstone of heart-healthy Mediterranean diet." },
+            { name: "Peanut Butter", type: "Fats", img: "https://images.unsplash.com/photo-1550505562-b9e73ddcb719?w=500", p: "25g", v: "E, B6", why: "Tasty source of energy and protein." },
+            { name: "Dark Chocolate", type: "Fats", img: "https://images.unsplash.com/photo-1511381939415-e44015466834?w=500", p: "7g", v: "Iron, Magnesium", why: "Mood booster rich in antioxidants." },
+            { name: "Coconut", type: "Fats", img: "https://images.unsplash.com/photo-1617112848923-cc5c3ac3927e?w=500", p: "3g", v: "MCTs, Manganese", why: "Instant energy and antimicrobial." },
+            { name: "Sunflower Seeds", type: "Fats", img: "https://images.unsplash.com/photo-1528659560309-1db72764f691?w=500", p: "21g", v: "E, B1", why: "Lowers blood pressure and cholesterol." }
+        ];
+
+        // --- 2. RENDER GRID ---
+        const grid = document.getElementById('nutriGrid');
+        foodItems.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'nutri-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="type-badge type-${item.type}">${item.type}</span>
+                    <img src="${item.img}" alt="${item.name}" class="card-img" onerror="this.src='https://placehold.co/500x300?text=${item.name}'">
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">${item.name}</h3>
+                    <div class="stat-row"><span class="stat-label">PROTEIN</span> <span class="stat-val">${item.p}</span></div>
+                    <div class="stat-row"><span class="stat-label">VITAMINS</span> <span class="stat-val">${item.v}</span></div>
+                    <div class="why-good">
+                        <span class="why-label"><i class="fas fa-check-circle"></i> WHY GOOD</span>
+                        <p class="why-text">${item.why}</p>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // --- 3. CONFIG & AUTH ---
+        const SUPABASE_URL = 'https://dzdrduqwkfdznkqtjuai.supabase.co'; 
+        const SUPABASE_KEY = 'sb_publishable_eHdGsaJOPDvhoUL_1sipWw_RxFvhAy2';
+        const API_BASE_URL = 'http://localhost:5000/api'; 
+        let supabaseClient, currentUser = null, isLoginMode = true;
+        let savedRecipesData = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                handleSessionUpdate(session);
+                supabaseClient.auth.onAuthStateChange((_e, session) => handleSessionUpdate(session));
+            }
+            setupAuth();
+            setupProfile();
+            setupDashboardModals(); // Added: New logic for modals
+            setupDataHandling();    // Added: New logic for planner
+        });
+
+        function handleSessionUpdate(session) {
+            currentUser = session ? session.user : null;
+            updateAuthUI(session);
+            if (currentUser) {
+                loadWeeklyPlan();
+            }
+        }
+
+        function updateAuthUI(session) {
+            const loginDiv = document.getElementById('loginLi-disabled');
+            const profileDiv = document.getElementById('profileLi-active');
+            const userAvatar = document.getElementById('userAvatar');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+
+            if (session) {
+                loginDiv.classList.add('hidden');
+                profileDiv.classList.remove('hidden');
+                document.querySelector('.user-email').textContent = session.user.email;
+                const name = session.user.user_metadata.full_name || session.user.email.split('@')[0];
+                if(userNameDisplay) userNameDisplay.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+                if(userAvatar) userAvatar.textContent = name.charAt(0).toUpperCase();
+            } else {
+                loginDiv.classList.remove('hidden');
+                profileDiv.classList.add('hidden');
+            }
+        }
+
+        function getAuthHeaders() {
+            if (!currentUser) return {};
+            // Assuming session is available in scope or retrievable
+            return {
+                'Content-Type': 'application/json',
+                // 'Authorization': ... (Add token if API requires it)
+            };
+        }
+
+        function setupProfile() {
+            const profileBtn = document.getElementById('profileToggleBtn');
+            const dropdown = document.getElementById('profileDropdown');
+            if(profileBtn && dropdown) {
+                profileBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); };
+                window.onclick = (e) => { if(!profileBtn.contains(e.target)) dropdown.classList.remove('show'); };
+            }
+        }
+
+        function setupAuth() {
+            document.getElementById('navLoginBtn').onclick = () => document.getElementById('authModal').classList.add('open');
+            document.getElementById('closeAuthModal').onclick = () => document.getElementById('authModal').classList.remove('open');
+            document.getElementById('navSignOutBtn').onclick = async (e) => { 
+                e.preventDefault();
+                await supabaseClient.auth.signOut(); 
+            };
+            
+            document.getElementById('toggleAuthMode').onclick = (e) => {
+                e.preventDefault();
+                isLoginMode = !isLoginMode;
+                document.querySelector('#authTitle').textContent = isLoginMode ? "Welcome Back" : "Create Account";
+                document.getElementById('submitAuthBtn').textContent = isLoginMode ? "Log In" : "Sign Up";
+                document.getElementById('toggleAuthText').textContent = isLoginMode ? "Don't have an account?" : "Already have an account?";
+                e.target.textContent = isLoginMode ? "Sign Up" : "Log In";
+            };
+
+            document.getElementById('authForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const msg = document.getElementById('authMessage');
+                const btn = document.getElementById('submitAuthBtn');
+                
+                btn.textContent = "Processing..."; btn.disabled = true;
+                try {
+                    if (isLoginMode) {
+                        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                        if (error) throw error;
+                        document.getElementById('authModal').classList.remove('open');
+                    } else {
+                        const { error } = await supabaseClient.auth.signUp({ email, password });
+                        if (error) throw error;
+                        msg.textContent = "Check email for confirmation!";
+                    }
+                } catch(err) { msg.textContent = err.message; }
+                finally { btn.textContent = isLoginMode ? "Log In" : "Sign Up"; btn.disabled = false; }
+            };
+        }
+
+        // --- 4. NEW FEATURE LOGIC (MODALS & DATA) ---
+        function setupDashboardModals() {
+            // Saved Modal
+            const openSavedBtn = document.getElementById('openSavedBtn');
+            const savedModal = document.getElementById('savedModal');
+            const closeSavedModal = document.getElementById('closeSavedModal');
+            const profileDropdown = document.getElementById('profileDropdown');
+
+            if (openSavedBtn) {
+                openSavedBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    savedModal.classList.add('open');
+                    if(profileDropdown) profileDropdown.classList.remove('show');
+                    loadSavedRecipes(); 
+                });
+            }
+            if (closeSavedModal) closeSavedModal.addEventListener('click', () => savedModal.classList.remove('open'));
+
+            // Plan Modal
+            const openPlanBtn = document.getElementById('openPlanBtn');
+            const planModal = document.getElementById('planModal');
+            const closePlanModal = document.getElementById('closePlanModal');
+
+            if (openPlanBtn) {
+                openPlanBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    planModal.classList.add('open');
+                    if(profileDropdown) profileDropdown.classList.remove('show');
+                });
+            }
+            if (closePlanModal) closePlanModal.addEventListener('click', () => planModal.classList.remove('open'));
+
+            // Detail Modal
+            const detailModal = document.getElementById('recipeDetailModal');
+            const closeDetail = document.getElementById('closeDetailModal');
+            if(closeDetail) closeDetail.addEventListener('click', () => detailModal.classList.remove('open'));
+
+            window.addEventListener('click', (e) => {
+                if (e.target === savedModal) savedModal.classList.remove('open');
+                if (e.target === planModal) planModal.classList.remove('open');
+                if (e.target === detailModal) detailModal.classList.remove('open');
+            });
+        }
+
+        // Saved Recipes Logic
+        async function loadSavedRecipes() {
+            const listContainer = document.querySelector('.saved-recipes-container');
+            if (!currentUser) {
+                listContainer.innerHTML = '<p style="padding:1rem; text-align:center;">Please login.</p>';
+                return;
+            }
+            try {
+                // Mocking data for example if API is offline, or fetching from API
+                const res = await fetch(`${API_BASE_URL}/recipes`, { headers: getAuthHeaders() });
+                if (res.ok) {
+                    savedRecipesData = await res.json();
+                } else {
+                    // Fallback or empty if API fails
+                    savedRecipesData = []; 
+                }
+
+                if (savedRecipesData.length === 0) {
+                    listContainer.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#888;">No saved recipes found.</p>';
+                    return;
+                }
+
+                listContainer.innerHTML = savedRecipesData.map(recipe => `
+                    <div class="saved-card-premium">
+                        <img src="${recipe.image || 'https://via.placeholder.com/150'}" class="saved-card-img" alt="${recipe.title}">
+                        <div class="saved-card-content">
+                            <h4>${recipe.title}</h4>
+                            <div class="saved-card-actions">
+                                <button class="btn-view" onclick="openRecipeDetails('${recipe._id}')"><i class="fas fa-utensils"></i> View</button>
+                                <button class="btn-delete-icon" onclick="deleteRecipe('${recipe._id}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                listContainer.innerHTML = '<p style="color:red; text-align:center;">Failed to load recipes.</p>';
+            }
+        }
+
+        window.openRecipeDetails = (id) => {
+            const recipe = savedRecipesData.find(r => r._id === id);
+            if(!recipe) return;
+            document.getElementById('detailTitle').textContent = recipe.title;
+            document.getElementById('detailHeader').style.backgroundImage = `url('${recipe.image || 'https://via.placeholder.com/600'}')`;
+            const ingList = document.getElementById('detailIngredients');
+            ingList.innerHTML = (recipe.ingredients || []).map(ing => `<li>${ing}</li>`).join('');
+            const instBox = document.getElementById('detailInstructions');
+            instBox.innerHTML = (recipe.instructions || []).map((step, index) => `
+                <div class="instruction-step"><div class="step-num">${index + 1}</div><div class="step-text">${step}</div></div>
+            `).join('');
+            document.getElementById('recipeDetailModal').classList.add('open');
+        };
+
+        window.deleteRecipe = async (id) => {
+            if(!confirm("Remove this recipe?")) return;
+            try {
+                await fetch(`${API_BASE_URL}/recipes/delete`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ recipeId: id })
+                });
+                loadSavedRecipes(); 
+            } catch(e) { console.error(e); }
+        };
+
+        // Planner Logic
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        let currentDayIndex = 0;
+        let weeklyPlanData = { "Monday": {}, "Tuesday": {}, "Wednesday": {}, "Thursday": {}, "Friday": {}, "Saturday": {}, "Sunday": {} };
+
+        function setupDataHandling() {
+            document.getElementById('prevDayBtn').addEventListener('click', () => { updateLocalData(); currentDayIndex = (currentDayIndex - 1 + 7) % 7; renderDay(); });
+            document.getElementById('nextDayBtn').addEventListener('click', () => { updateLocalData(); currentDayIndex = (currentDayIndex + 1) % 7; renderDay(); });
+            document.getElementById('saveDayBtn').addEventListener('click', saveWeeklyPlanToDB);
+        }
+
+        function renderDay() {
+            const day = days[currentDayIndex];
+            document.getElementById('currentDayTitle').textContent = day;
+            document.getElementById('morningInput').value = weeklyPlanData[day].morning || "";
+            document.getElementById('afternoonInput').value = weeklyPlanData[day].afternoon || "";
+            document.getElementById('eveningInput').value = weeklyPlanData[day].evening || "";
+        }
+
+        function updateLocalData() {
+            const day = days[currentDayIndex];
+            weeklyPlanData[day] = {
+                morning: document.getElementById('morningInput').value,
+                afternoon: document.getElementById('afternoonInput').value,
+                evening: document.getElementById('eveningInput').value
+            };
+        }
+
+        async function loadWeeklyPlan() {
+            if(!currentUser) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/plan`, { headers: getAuthHeaders() });
+                if(res.ok) {
+                    const data = await res.json();
+                    data.forEach(p => weeklyPlanData[p.day] = p);
+                    renderDay();
+                }
+            } catch(e) {}
+        }
+
+        async function saveWeeklyPlanToDB() {
+            updateLocalData();
+            const day = days[currentDayIndex];
+            const btn = document.getElementById('saveDayBtn');
+            btn.textContent = "Saving...";
+            try {
+                await fetch(`${API_BASE_URL}/plan`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ day, ...weeklyPlanData[day] })
+                });
+                alert("Plan saved!");
+            } catch(e) { alert("Error saving."); }
+            finally { btn.textContent = "Save Plan"; }
+        }
+    </script>
+</body>
+</html>

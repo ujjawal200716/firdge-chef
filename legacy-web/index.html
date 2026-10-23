@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FridgeChef Native - AI Smart Recipe & Kitchen Companion</title>
+  
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#08090c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Minimalist & bold mobile native kitchen app for Gen Z and busy professionals with AI Magic Link recipe extraction, bento layouts, and keep-awake cooking mode.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="image/image1.png">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="mobile-app.css">
+</head>
+<body>
+
+  <!-- Simulator Toolbar for Desktop & Presentation -->
+  <div class="simulator-toolbar" id="simToolbar">
+    <button class="sim-btn" id="simToggleFrameBtn" title="Toggle between iPhone Frame and Fullscreen View">
+      <i class="fas fa-expand"></i> Full View
+    </button>
+    <button class="sim-btn" id="simToggleThemeBtn" title="Toggle Dark and Light theme">
+      <i class="fas fa-sun"></i> Light Mode
+    </button>
+    <a href="homepage.html" class="sim-btn" title="View Original Web App">
+      <i class="fas fa-globe"></i> Classic Site
+    </a>
+  </div>
+
+  <!-- App Viewport Wrapper -->
+  <div class="app-viewport-wrapper">
+
+    <!-- Mobile Device Frame (iPhone 16 Pro styling) -->
+    <div class="mobile-device-frame" id="mobileDeviceFrame">
+
+      <!-- Hardware Dynamic Island & Native Status Bar -->
+      <header class="device-status-bar">
+        <span class="status-time" id="deviceStatusTime">09:41</span>
+        
+        <div class="dynamic-island" id="dynamicIsland">
+          <div class="island-camera"></div>
+          <div class="island-sensor"></div>
+        </div>
+
+        <div class="status-icons">
+          <i class="fas fa-signal" style="font-size: 11px;"></i>
+          <span style="font-size: 11px; font-weight: 800;">5G</span>
+          <i class="fas fa-battery-full" style="font-size: 13px;"></i>
+        </div>
+      </header>
+
+      <!-- App Screen Container -->
+      <main class="app-screen-container">
+
+        <!-- ==========================================
+             SCREEN 1: HOME / DISCOVER SCREEN
+             ========================================== -->
+        <section class="screen-view active-screen" id="screenHome">
+          <div class="screen-content">
+            
+            <!-- Header greeting -->
+            <div class="home-header">
+              <div class="greeting-block">
+                <h2 id="homeDynamicGreeting">Quick Dinners for Tonight</h2>
+                <h1>What's Cooking?</h1>
+              </div>
+              <div class="header-actions">
+                <button class="icon-badge-btn" id="headerNotifyBtn" aria-label="Notifications">
+                  <i class="far fa-bell"></i>
+                  <span class="badge-dot"></span>
+                </button>
+                <div class="icon-badge-btn" style="background:#262c36; font-size:13px; font-weight:800; color:var(--accent-citrus);" title="Chef Profile">
+                  FC
+                </div>
+              </div>
+            </div>
+
+            <!-- Minimalist Search Bar -->
+            <div class="minimal-search-box">
+              <i class="fas fa-search search-icon-left"></i>
+              <input type="text" class="search-input-field" id="mainSearchInput" placeholder="Search 500+ recipes, ingredients, macros..." autocomplete="off">
+              <button class="search-clear-btn" id="searchClearBtn" aria-label="Clear Search">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <!-- Filter Pills (Horizontal Scroll) -->
+            <nav class="filter-pills-scroll" aria-label="Dietary Filters">
+              <button class="filter-pill active" data-filter="all">All</button>
+              <button class="filter-pill" data-filter="under-30"><i class="fas fa-bolt"></i> Under 30 Mins</button>
+              <button class="filter-pill" data-filter="high-protein"><i class="fas fa-dumbbell"></i> High Protein</button>
+              <button class="filter-pill" data-filter="meal-prep"><i class="fas fa-box"></i> Meal Prep</button>
+              <button class="filter-pill" data-filter="vegan"><i class="fas fa-seedling"></i> Vegan</button>
+              <button class="filter-pill" data-filter="keto"><i class="fas fa-egg"></i> Keto</button>
+              <button class="filter-pill" data-filter="under-500"><i class="fas fa-fire"></i> &lt; 500 Cals</button>
+            </nav>
+
+            <!-- Bento Box Grid -->
+            <div class="bento-grid">
+              
+              <!-- Bento Tile 1: Daily Macros & Calorie Ring -->
+              <div class="bento-tile macro-bento-tile">
+                <div class="macro-header">
+                  <div class="macro-title-group">
+                    <i class="fas fa-chart-pie"></i>
+                    <span class="macro-title">Daily Nutrition</span>
+                  </div>
+                  <span class="macro-target-badge">2,200 KCAL GOAL</span>
+                </div>
+                
+                <div class="macro-content-row">
+                  <!-- Circular Calorie Widget -->
+                  <div class="calorie-circle-widget">
+                    <svg class="calorie-circle-svg" viewBox="0 0 80 80">
+                      <circle class="calorie-circle-bg" cx="40" cy="40" r="34" />
+                      <circle class="calorie-circle-bar" cx="40" cy="40" r="34" />
+                    </svg>
+                    <div class="calorie-circle-center">
+                      <div class="calorie-number">1,480</div>
+                      <div class="calorie-label">Left</div>
+                    </div>
+                  </div>
+
+                  <!-- Macros Breakdown -->
+                  <div class="macro-bars-group">
+                    <div class="macro-bar-item">
+                      <div class="macro-bar-meta">
+                        <span class="m-name">Protein (Target 140g)</span>
+                        <span class="m-val">98g</span>
+                      </div>
+                      <div class="macro-track">
+                        <div class="macro-fill protein" style="width: 70%;"></div>
+                      </div>
+                    </div>
+
+                    <div class="macro-bar-item">
+                      <div class="macro-bar-meta">
+                        <span class="m-name">Carbs (Target 210g)</span>
+                        <span class="m-val">122g</span>
+                      </div>
+                      <div class="macro-track">
+                        <div class="macro-fill carbs" style="width: 58%;"></div>
+                      </div>
+                    </div>
+
+                    <div class="macro-bar-item">
+                      <div class="macro-bar-meta">
+                        <span class="m-name">Fats (Target 65g)</span>
+                        <span class="m-val">34g</span>
+                      </div>
+                      <div class="macro-track">
+                        <div class="macro-fill fats" style="width: 52%;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bento Tile 2: Featured Recipe Hero Tile -->
+              <div class="bento-tile featured-recipe-tile" id="featuredHeroCard">
+                <img src="image/gourmet_salmon.jpg" alt="Featured Dish" class="featured-img-bg">
+                <div class="featured-overlay">
+                  <span class="featured-pill-tag">🔥 DISH OF THE DAY</span>
+                  <div class="featured-bottom">
+                    <h3 class="featured-title">Honey Soy Glazed Salmon Bowl</h3>
+                    <div class="featured-meta">
+                      <span class="meta-pill"><i class="fas fa-clock"></i> 22 MINS</span>
+                      <span class="meta-pill"><i class="fas fa-fire"></i> 520 KCAL</span>
+                      <span class="meta-pill"><i class="fas fa-dumbbell"></i> 38G PROTEIN</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bento Tile 3: Frictionless Swipe UX Hint -->
+              <div class="swipe-hint-banner">
+                <span><i class="fas fa-hand-pointer" style="color:var(--accent-citrus);"></i> Swipe Cards:</span>
+                <span>👉 <strong class="key-tag">Right</strong> to Favorite</span>
+                <span>👈 <strong class="key-tag">Left</strong> to Grocery</span>
+              </div>
+
+            </div>
+
+            <!-- Dynamic Recipe Stream (Swipe Cards + Infinite Scroll) -->
+            <div class="recipe-cards-stream" id="recipeFeedContainer">
+              <!-- Rendered via mobile-app.js -->
+            </div>
+
+            <!-- Infinite Scroll Status Indicator -->
+            <div class="infinite-scroll-status">
+              <div class="infinite-dot-pulse"></div>
+              <span>Discovering more recipes...</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==========================================
+             SCREEN 2: THE MAGIC EXTRACTOR (CENTER TAB)
+             ========================================== -->
+        <section class="screen-view" id="screenExtractor">
+          <div class="magic-extractor-view">
+            
+            <span class="magic-badge"><i class="fas fa-wand-magic-sparkles"></i> AI Recipe Extractor</span>
+            
+            <h2 class="magic-hero-title">Found a recipe you like? Drop the link.</h2>
+            
+            <p class="magic-hero-subtitle">
+              Paste a YouTube, Shorts, or Instagram Reel link. Our ultra-fast AI extracts ingredients, steps, and macros in seconds.
+            </p>
+
+            <!-- Auto-detected Clipboard Chip -->
+            <div class="clipboard-auto-chip" id="clipboardAutoChip">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Pill Input Field -->
+            <div class="magic-input-wrapper" id="extractorInputGroup">
+              <input type="url" class="magic-link-input" id="magicLinkInput" placeholder="Paste YouTube, Shorts, or Reel link..." autocomplete="off">
+              <button class="magic-paste-icon-btn" id="magicPasteIconBtn" title="Paste from clipboard">
+                <i class="far fa-clipboard"></i>
+              </button>
+            </div>
+
+            <button class="magic-extract-btn" id="magicExtractBtn">
+              <i class="fas fa-bolt"></i> Extract Recipe Now
+            </button>
+
+            <!-- Custom Bubbling Pot Loading Stage -->
+            <div class="bubbling-pot-stage" id="bubblingPotStage">
+              <div class="pot-svg-container">
+                <!-- Steam Waves -->
+                <div class="steam-group">
+                  <div class="steam-wave"></div>
+                  <div class="steam-wave"></div>
+                  <div class="steam-wave"></div>
+                </div>
+
+                <!-- Soup Bubbles -->
+                <div class="soup-bubbles">
+                  <div class="soup-bubble"></div>
+                  <div class="soup-bubble"></div>
+                  <div class="soup-bubble"></div>
+                </div>
+
+                <!-- Custom SVG Dutch Oven / Pot -->
+                <svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Pot Lid Handle -->
+                  <rect x="52" y="10" width="16" height="6" rx="3" fill="#64748b" />
+                  <!-- Pot Handles -->
+                  <path d="M12 44C6 44 4 52 10 56C14 59 18 56 18 50" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+                  <path d="M108 44C114 44 116 52 110 56C106 59 102 56 102 50" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+                  <!-- Pot Body -->
+                  <path d="M20 38H100V64C100 76 88 84 60 84C32 84 20 76 20 64V38Z" fill="#1e2530" stroke="#334155" stroke-width="4" />
+                  <!-- Glowing Boiling Broth Surface -->
+                  <ellipse cx="60" cy="38" rx="38" ry="8" fill="#d4ff00" fill-opacity="0.25" stroke="#d4ff00" stroke-width="2" />
+                  <!-- Flame Burner Underneath -->
+                  <path d="M40 88C45 84 55 86 60 84C65 86 75 84 80 88" stroke="#ff3b30" stroke-width="3" stroke-linecap="round" />
+                </svg>
+              </div>
+
+              <div class="extractor-status-text" id="extractorStatusText">
+                Fetching video audio transcript...
+              </div>
+              <div class="extractor-status-subtext" id="extractorStatusSubtext">
+                Groq AI LLaMA 3.3 identifying culinary steps
+              </div>
+            </div>
+
+            <!-- Extracted Result Preview Card -->
+            <div class="extracted-result-card" id="extractedResultCard">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Sample Links Tray -->
+            <div class="sample-links-tray">
+              <span class="sample-links-title">Try Popular Viral Links:</span>
+              <div class="sample-chips-row">
+                <button class="sample-chip" data-url="https://youtube.com/shorts/chili-garlic-noodles">
+                  <i class="fab fa-youtube" style="color:#ff0000;"></i> 15-Min Chili Noodles
+                </button>
+                <button class="sample-chip" data-url="https://instagram.com/reel/honey-butter-salmon">
+                  <i class="fab fa-instagram" style="color:#e1306c;"></i> Crispy Honey Salmon
+                </button>
+                <button class="sample-chip" data-url="https://tiktok.com/@chef/smash-burger-tacos">
+                  <i class="fab fa-tiktok"></i> Smash Burger Tacos
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==========================================
+             SCREEN 3: OFFLINE GROCERY LISTS
+             ========================================== -->
+        <section class="screen-view" id="screenGrocery">
+          <div class="screen-content grocery-screen-view">
+            
+            <div class="home-header">
+              <div class="greeting-block">
+                <h2>Local Supermarket Ready</h2>
+                <h1>Grocery List</h1>
+              </div>
+              <button class="icon-badge-btn" id="groceryShareBtn" aria-label="Share grocery list">
+                <i class="fas fa-share-alt"></i>
+              </button>
+            </div>
+
+            <!-- Offline Banner -->
+            <div class="grocery-top-banner">
+              <div class="grocery-banner-left">
+                <i class="fas fa-shield-halved"></i>
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:#fff;">Offline Ready</div>
+                  <div style="font-size:11px; color:var(--text-secondary);">Cached on your device for spotty supermarket signals</div>
+                </div>
+              </div>
+              <span class="offline-pill-tag">ACTIVE</span>
+            </div>
+
+            <!-- Quick Add Item Row -->
+            <div class="grocery-quick-add-row">
+              <input type="text" class="grocery-input-field" id="groceryQuickInput" placeholder="Quick add item (e.g. Greek Yogurt, Eggs)...">
+              <button class="grocery-add-btn" id="groceryAddBtn" aria-label="Add item">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+
+            <!-- Categorized Checklist Items -->
+            <div id="groceryListItemsContainer">
+              <!-- Rendered via mobile-app.js -->
+            </div>
+
+            <!-- Footer actions -->
+            <div style="display:flex; justify-content:center; padding-top:10px;">
+              <button class="card-action-btn secondary" id="groceryClearBtn" style="width: auto; padding: 0 24px;">
+                <i class="far fa-trash-alt"></i> Clear Completed Items
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==========================================
+             SCREEN 4: SAVED RECIPES (COOKBOOK)
+             ========================================== -->
+        <section class="screen-view" id="screenSaved">
+          <div class="screen-content">
+            
+            <div class="home-header">
+              <div class="greeting-block">
+                <h2>Your Collection</h2>
+                <h1>Cookbook</h1>
+              </div>
+              <div class="header-actions">
+                <div class="icon-badge-btn" style="color:var(--accent-tomato);">
+                  <i class="fas fa-heart"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Saved Recipes Feed -->
+            <div id="savedRecipesContainer">
+              <!-- Rendered via mobile-app.js -->
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==========================================
+             SCREEN 5: RECIPE DETAIL & PREVIEW
+             ========================================== -->
+        <section class="screen-view recipe-detail-view" id="screenDetail">
+          
+          <!-- Edge-to-Edge Shrinking Parallax Header -->
+          <div class="detail-header-parallax">
+            <img src="image/gourmet_salmon.jpg" alt="Recipe Header" class="detail-cover-image" id="detailCoverImage">
+            <div class="detail-header-gradient"></div>
+          </div>
+
+          <!-- Floating Nav Top Bar -->
+          <div class="detail-floating-nav">
+            <button class="detail-nav-btn" id="detailBackBtn" aria-label="Back">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="detail-nav-btn" id="detailFavBtn" aria-label="Favorite">
+              <i class="fas fa-heart"></i>
+            </button>
+          </div>
+
+          <!-- Recipe Body Content -->
+          <div class="detail-body-container">
+            
+            <div class="detail-meta-pill-bar" id="detailTagsRow">
+              <!-- Populated via JS -->
+            </div>
+
+            <h1 class="detail-title" id="detailTitle">Recipe Title</h1>
+
+            <!-- 4-Column Macro Metric Cards -->
+            <div class="detail-macros-grid">
+              <div class="macro-metric-card">
+                <div class="macro-val" id="detailCalories">0</div>
+                <div class="macro-key">Calories</div>
+              </div>
+              <div class="macro-metric-card">
+                <div class="macro-val" id="detailProtein">0g</div>
+                <div class="macro-key">Protein</div>
+              </div>
+              <div class="macro-metric-card">
+                <div class="macro-val" id="detailCarbs">0g</div>
+                <div class="macro-key">Carbs</div>
+              </div>
+              <div class="macro-metric-card">
+                <div class="macro-val" id="detailFat">0g</div>
+                <div class="macro-key">Fat</div>
+              </div>
+            </div>
+
+            <!-- Serving Size Scaler -->
+            <div class="serving-scaler-row">
+              <span class="serving-title">Serving Size</span>
+              <div class="serving-pill-selectors">
+                <button class="serv-btn active" data-mult="1">1x</button>
+                <button class="serv-btn" data-mult="2">2x</button>
+                <button class="serv-btn" data-mult="4">4x</button>
+              </div>
+            </div>
+
+            <!-- Ingredients Checklist -->
+            <div>
+              <div class="section-title-row">
+                <h3 class="section-h3"><i class="fas fa-basket-shopping"></i> Ingredients</h3>
+                <button class="add-all-grocery-btn" id="addAllGroceryBtn">
+                  <i class="fas fa-cart-plus"></i> Add All to Grocery
+                </button>
+              </div>
+              <div class="ingredient-items-list" id="detailIngredientsList">
+                <!-- Checkboxes populated via JS -->
+              </div>
+            </div>
+
+            <!-- Step by Step Preview -->
+            <div>
+              <div class="section-title-row">
+                <h3 class="section-h3"><i class="fas fa-list-ol"></i> Step Instructions</h3>
+              </div>
+              <div class="step-items-list" id="detailStepsList">
+                <!-- Steps populated via JS -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Sticky Frosted Glass "Start Cooking" Footer -->
+          <div class="sticky-glass-cooking-bar">
+            <button class="start-cooking-primary-btn" id="startCookingBtn">
+              <i class="fas fa-play"></i> Start Cooking (Keep-Awake Focus)
+            </button>
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- ==========================================
+           FULL-SCREEN STEP-BY-STEP COOKING FOCUS MODE
+           ========================================== -->
+      <div class="cooking-focus-mode-overlay" id="cookingFocusOverlay">
+        
+        <!-- Top Bar: Progress & Keep Awake Badge -->
+        <div class="focus-top-bar">
+          <div class="focus-header-actions">
+            <button class="focus-close-btn" id="focusCloseBtn" aria-label="Exit Focus Mode">
+              <i class="fas fa-times"></i>
+            </button>
+
+            <!-- Hardware Keep-Awake Indicator Badge -->
+            <div class="keep-awake-badge" id="keepAwakeStatusBadge">
+              <div class="awake-pulse-dot"></div> Keep-Awake: ON
+            </div>
+
+            <!-- Hands-Free Voice Step Reader -->
+            <button class="voice-read-btn" id="voiceReadBtn" aria-label="Read step aloud">
+              <i class="fas fa-volume-up"></i> Read
+            </button>
+          </div>
+
+          <div class="focus-progress-container">
+            <div class="focus-step-count" id="focusStepCount">Step 1 of 5</div>
+            <div class="focus-progress-track">
+              <div class="focus-progress-bar" id="focusProgressBar" style="width: 20%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center Giant Step Display -->
+        <div class="focus-step-body">
+          <span class="focus-step-number-tag" id="focusStepNumberTag">STEP 1</span>
+          
+          <div class="focus-instruction-giant" id="focusInstructionGiant">
+            Bring a large pot of salted water to a rolling boil over high heat.
+          </div>
+
+          <!-- Step Countdown Timer -->
+          <div class="step-timer-widget" id="stepTimerWidget">
+            <div class="timer-clock-digits" id="timerClockDigits">04:00</div>
+            <button class="timer-toggle-btn" id="timerToggleBtn" aria-label="Start or pause timer">
+              <i class="fas fa-play"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="focus-bottom-controls">
+          <button class="focus-prev-btn" id="focusPrevBtn" aria-label="Previous step">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <button class="focus-next-btn" id="focusNextBtn">
+            Next Step <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ==========================================
+           FLOATING GLASS BOTTOM NAVIGATION BAR
+           ========================================== -->
+      <nav class="floating-glass-tab-bar" aria-label="Mobile Navigation">
+        
+        <button class="nav-tab-btn active" data-screen="screenHome">
+          <i class="fas fa-compass"></i>
+          <span>Discover</span>
+        </button>
+
+        <button class="nav-tab-btn" data-screen="screenGrocery">
+          <i class="fas fa-shopping-basket"></i>
+          <span>Grocery</span>
+        </button>
+
+        <!-- Central Glowing "+" Magic Extractor Button -->
+        <div class="center-magic-tab-wrapper">
+          <div class="center-magic-pulse-ring"></div>
+          <button class="center-magic-btn" id="centerMagicBtn" aria-label="Magic Link Extractor">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+
+        <button class="nav-tab-btn" data-screen="screenSaved">
+          <i class="fas fa-bookmark"></i>
+          <span>Cookbook</span>
+        </button>
+
+        <button class="nav-tab-btn" onclick="window.location.href='caloriesmeter.html'">
+          <i class="fas fa-fire"></i>
+          <span>Macros</span>
+        </button>
+
+      </nav>
+
+      <!-- iOS Home Indicator Bar -->
+      <div class="home-indicator-bar"></div>
+
+    </div>
+
+  </div>
+
+  <!-- Mobile Toast Component -->
+  <div class="mobile-toast" id="mobileToast"></div>
+
+  <!-- Scripts -->
+  <script src="mobile-app.js"></script>
+
+</body>
+</html>

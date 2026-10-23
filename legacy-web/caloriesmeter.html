@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Gallery Pro</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           1. PREMIUM THEME VARIABLES
+           ========================================= */
+        :root {
+            --bg-base: #fdfbf7;
+            --bg-gradient-1: #fae3d9;
+            --bg-gradient-2: #ffd1d1;
+            
+            --primary-rose: #bf6b7a;       
+            --primary-rose-hover: #a6505f; 
+            --primary-rose-light: #fff0f3;
+            
+            --accent-green: #2ecc71;       
+            --accent-green-dark: #27ae60;
+            --accent-green-light: #e8f8f0;
+            
+            --text-dark: #1e272e;
+            --text-body: #636e72; 
+            --text-muted: #636E72;
+            
+            /* Glass Effects */
+            --surface-white: rgba(255, 255, 255, 0.95);
+            --surface-glass: rgba(255, 255, 255, 0.7);
+            
+            /* Shapes & Shadows */
+            --radius-card: 24px; 
+            --radius-pill: 50px;
+            --shadow-subtle: 0 10px 30px -10px rgba(191, 107, 122, 0.15);
+            --shadow-float: 0 20px 40px -10px rgba(191, 107, 122, 0.2);
+            --shadow-nav: 0 4px 30px rgba(0, 0, 0, 0.03);
+            
+            --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, var(--bg-gradient-1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, var(--bg-gradient-2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, var(--bg-gradient-1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-dark);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+        .hidden { display: none !important; }
+
+        /* =========================================
+           2. PREMIUM NAVBAR (Exact Match Homepage)
+           ========================================= */
+        header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            position: sticky; top: 0; z-index: 2000;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-nav);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+            animation: slideInRight 0.6s ease-out backwards;
+        }
+
+        .header-container {
+            max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; transition: transform 0.3s; flex-shrink: 0; }
+        .logo:hover { transform: scale(1.05); }
+        .logo img {
+            border-radius: 50%; border: 2px solid white;
+            padding: 0; background: white;
+            box-shadow: 0 4px 10px rgba(191, 107, 122, 0.2);
+        }
+        .logo h1 { 
+            font-size: 1.5rem; color: var(--text-dark); font-weight: 800; letter-spacing: -0.5px; 
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary-rose) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .main-nav ul { display: flex; gap: 2.5rem; align-items: center; } 
+        
+        .main-nav a:not(.btn-primary) {
+            color: var(--text-dark); font-weight: 600; font-size: 0.95rem;
+            padding: 0.5rem 0; 
+            position: relative; opacity: 0.7; transition: 0.3s;
+        }
+        .main-nav a:not(.btn-primary):hover, .main-nav a.active {
+            opacity: 1; color: var(--primary-rose);
+        }
+        .main-nav a:not(.btn-primary)::after {
+            content: ''; position: absolute; bottom: -2px; left: 0;
+            width: 0%; height: 2px; background: var(--primary-rose);
+            border-radius: 2px; transition: 0.3s ease;
+        }
+        .main-nav a:not(.btn-primary):hover::after, .main-nav a.active::after { width: 100%; }
+
+        .btn-primary {
+            background: var(--primary-rose); color: white; border: none;
+            padding: 12px 28px; border-radius: var(--radius-pill);
+            cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(191, 107, 122, 0.3);
+            transition: var(--transition-bounce);
+            font-size: 0.9rem; position: relative; overflow: hidden;
+        }
+        .btn-primary:hover {
+            background: var(--primary-rose-hover); transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(191, 107, 122, 0.4);
+        }
+        .small-btn { padding: 10px 24px; font-size: 0.9rem; }
+
+        /* Profile Dropdown */
+        .profile-menu { position: relative; z-index: 2001; }
+        .profile-btn {
+            background: white; border: 1px solid rgba(0,0,0,0.08); cursor: pointer;
+            padding: 4px 16px 4px 4px; border-radius: 50px;
+            display: flex; align-items: center; gap: 10px; font-weight: 600;
+            transition: 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .profile-btn:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .profile-initials {
+            width: 34px; height: 34px; border-radius: 50%; 
+            background: var(--primary-rose); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .dropdown-content {
+            display: none; position: absolute; right: 0; top: 125%; margin-top: 10px;
+            background: white; min-width: 240px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            z-index: 9999; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden; animation: dropdownBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .dropdown-content.show { display: block; }
+        .dropdown-header { padding: 16px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .user-email { font-size: 0.85rem; color: #666; font-weight: 500; }
+        .dropdown-content a { color: #444; padding: 14px 20px; display: flex; gap: 10px; align-items: center; transition: 0.2s; font-size: 0.9rem; font-weight: 500; }
+        .dropdown-content a:hover { background: #fff0f3; color: var(--primary-rose); padding-left: 24px; }
+
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes dropdownBounce { 0% { opacity: 0; transform: scale(0.9) translateY(-10px); } 70% { transform: scale(1.02) translateY(2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes slideUpMobile { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* ================= CALORIE PAGE LAYOUT ================= */
+        .container { max-width: 700px; margin: 3rem auto; padding: 0 1.5rem; }
+
+        .hero-card {
+            background: white; border-radius: var(--radius-card);
+            box-shadow: var(--shadow-float); padding: 2.5rem; text-align: center;
+            margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .chart-container { position: relative; width: 220px; height: 220px; margin: 0 auto 2rem auto; }
+        .chart-center-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+        .chart-center-text h2 { font-size: 2.5rem; line-height: 1; color: var(--primary-rose); margin: 0; font-weight: 800; }
+        .chart-center-text span { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .stats-row { display: flex; justify-content: space-around; border-top: 1px solid #f0f0f0; padding-top: 1.5rem; }
+        .stat-item h4 { font-size: 1.4rem; color: var(--text-dark); margin: 0 0 5px 0; font-weight: 700; }
+        .stat-item p { font-size: 0.9rem; color: var(--text-muted); margin: 0; }
+
+        .edit-goal-btn { background: none; border: none; color: var(--primary-rose); cursor: pointer; font-size: 0.9rem; margin-left: 5px; transition: transform 0.2s; }
+        .edit-goal-btn:hover { transform: scale(1.2); }
+
+        .input-section { background: white; border-radius: var(--radius-card); box-shadow: var(--shadow-subtle); padding: 2rem; margin-bottom: 2.5rem; }
+        .tabs { display: flex; background: #f8f9fa; border-radius: 12px; padding: 6px; margin-bottom: 1.5rem; }
+        .tab-btn { flex: 1; border: none; background: transparent; padding: 12px; border-radius: 10px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.3s; font-size: 0.95rem; }
+        .tab-btn.active { background: white; color: var(--primary-rose); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+        input, select { width: 100%; padding: 16px; border: 2px solid #f0f0f0; border-radius: 14px; font-size: 1rem; outline: none; background: #FAFAFA; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--primary-rose); background: white; }
+
+        .action-btn { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-food { background: var(--primary-rose); color: white; }
+        .btn-exercise { background: var(--accent-green); color: white; }
+        .btn-food:hover, .btn-exercise:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        .log-section h3 { margin-bottom: 1.5rem; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; }
+        .log-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 1.2rem; border-radius: 18px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s; }
+        .log-item:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .log-left { display: flex; align-items: center; gap: 15px; }
+        .log-icon { width: 45px; height: 45px; border-radius: 12px; background: #FFF0F3; color: var(--primary-rose); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .log-info h5 { font-size: 1rem; color: var(--text-dark); margin: 0 0 3px 0; font-weight: 600; }
+        .log-info span { font-size: 0.85rem; color: var(--text-muted); }
+        .delete-btn { background: #fff5f5; border: none; color: #ff7675; cursor: pointer; padding: 10px; border-radius: 10px; transition: 0.3s; }
+        .delete-btn:hover { background: #ff7675; color: white; }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-dark); color: white; padding: 12px 30px; border-radius: 50px; font-size: 0.95rem; opacity: 0; transition: 0.4s; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ================= MODALS (Auth, Plan, Saved, Detail) ================= */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 39, 46, 0.6); backdrop-filter: blur(12px); z-index: 10000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.open { display: flex; opacity: 1; }
+        .modal-glass-card { background: white; width: 90%; max-width: 380px; border-radius: 24px; padding: 2rem; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.3); transform: translateY(20px) scale(0.95); transition: var(--transition-bounce); text-align: center; }
+        .modal-overlay.open .modal-glass-card { transform: translateY(0) scale(1); }
+        .modal-large-card { max-width: 900px; padding: 2rem; text-align: left; width: 95%; }
+        
+        .modal-header h2 { font-weight: 800; color: var(--text-dark); margin-bottom: 5px; font-size: 1.5rem; }
+        .icon-circle { width: 60px; height: 60px; background: var(--primary-rose-light); color: var(--primary-rose); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1.2rem; }
+        .auth-form { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.2rem; }
+        .input-container { position: relative; }
+        .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #b2bec3; font-size: 0.9rem; }
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: #f1f1f1; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: #636e72; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .modal-close-btn:hover { background: var(--primary-rose); color: white; transform: rotate(90deg); }
+
+        /* Saved Recipes Styles */
+        .saved-recipes-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; max-height: 60vh; overflow-y: auto; padding: 10px; }
+        .saved-card-premium { background: white; border-radius: 20px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s ease; }
+        .saved-card-premium:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(191, 107, 122, 0.2); border-color: var(--primary-rose-light); }
+        .saved-card-img { width: 90px; height: 90px; border-radius: 15px; object-fit: cover; }
+        .saved-card-content { flex: 1; }
+        .saved-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-view { flex: 1; padding: 8px; background: var(--primary-rose); color: white; border: none; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+        .btn-delete-icon { width: 32px; height: 32px; border: 1px solid #ffecec; background: #fff5f5; color: #ff6b6b; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* Full Recipe Detail Modal CSS (Added) */
+        #recipeDetailModal .modal-glass-card { max-width: 900px; height: 85vh; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+        .recipe-detail-header { height: 250px; background-size: cover; background-position: center; position: relative; }
+        .recipe-detail-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: white; text-align: left; }
+        .recipe-detail-content { padding: 30px; overflow-y: auto; text-align: left; flex: 1; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .ingredients-box { background: #fffbfb; padding: 20px; border-radius: 15px; border: 1px solid #fcebeb; }
+        .ingredients-box li { padding: 8px 0; border-bottom: 1px solid #eee; display: flex; gap: 8px; font-size: 0.9rem; }
+        .ingredients-box li::before { content: "•"; color: var(--primary-rose); font-weight: bold; }
+        .instruction-step { margin-bottom: 20px; display: flex; gap: 15px; }
+        .step-num { min-width: 30px; height: 30px; background: var(--text-dark); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* Plan Styles */
+        .plan-glass-bg { background: white; }
+        .day-navigator { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: #fdf2f4; padding: 8px 15px; border-radius: 60px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #fae3d9; }
+        .day-nav-btn { background: white; border: none; width: 45px; height: 45px; border-radius: 50%; box-shadow: 0 4px 10px rgba(191, 107, 122, 0.15); cursor: pointer; color: var(--primary-rose); transition: 0.3s; }
+        .day-nav-btn:hover { background: var(--primary-rose); color: white; transform: scale(1.1); }
+        #currentDayTitle { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; }
+        .day-editor { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        @media(max-width: 768px) { .day-editor { grid-template-columns: 1fr; } }
+        .editor-section { background: #fff; padding: 1.2rem; border-radius: 16px; border: 1px solid #eee; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.3s; display: flex; flex-direction: column; height: 100%; }
+        .editor-section.morning { border-top: 4px solid #f1c40f; background: linear-gradient(to bottom, #fffdf5, #fff); }
+        .editor-section.afternoon { border-top: 4px solid #27ae60; background: linear-gradient(to bottom, #f0fdf4, #fff); }
+        .editor-section.evening { border-top: 4px solid #3498db; background: linear-gradient(to bottom, #f0f7fd, #fff); }
+        .editor-label { display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 700; color: #555; margin-bottom: 12px; }
+        .editor-textarea { width: 100%; flex: 1; padding: 12px; border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; resize: none; background: white; font-family: inherit; font-size: 0.95rem; transition: 0.3s; min-height: 80px; }
+        .editor-textarea:focus { border-color: var(--primary-rose); box-shadow: 0 0 0 3px rgba(191, 107, 122, 0.1); }
+
+        /* =========================================
+           MOBILE RESPONSIVENESS FIXES
+           ========================================= */
+        @media (max-width: 900px) {
+            .header-container { flex-direction: column; gap: 1rem; padding: 0.5rem 1rem; }
+            .main-nav { width: 100%; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+            .main-nav ul { width: max-content; margin: 0 auto; gap: 1.5rem; padding: 0 10px; }
+            
+            /* FIX: Profile Dropdown on Mobile (Bottom Sheet Style) */
+            /* Prevents clipping inside the overflow-x: auto container */
+            .profile-menu .dropdown-content {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                margin-top: 0;
+                border-radius: 24px 24px 0 0;
+                border: none;
+                box-shadow: 0 -10px 50px rgba(0,0,0,0.2);
+                animation: slideUpMobile 0.3s ease-out;
+                z-index: 10000;
+            }
+            .stats-row { flex-wrap: wrap; gap: 15px; }
+            .stat-item { width: 45%; margin-bottom: 10px; }
+        }
+
+        @media (max-width: 600px) {
+            .main-nav ul { gap: 1rem; }
+            .main-nav a:not(.btn-primary) { font-size: 0.85rem; }
+            .btn-primary { padding: 8px 20px; font-size: 0.85rem; }
+            .container { padding: 0 1rem; margin-top: 1.5rem; }
+            .hero-card { padding: 1.5rem; }
+            .chart-container { width: 180px; height: 180px; }
+            .chart-center-text h2 { font-size: 2rem; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .recipe-detail-header { height: 180px; }
+            
+            .day-navigator { flex-direction: row; gap: 5px; } 
+            .day-nav-btn { width: 35px; height: 35px; }
+            #currentDayTitle { font-size: 1.1rem; }
+            .modal-glass-card { width: 95%; padding: 1.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="homepage.html" class="logo">
+                <img src="https://i.pinimg.com/1200x/5b/4a/51/5b4a516498ad17b281169384b714a635.jpg" alt="logo" width="45" height="45">
+                <h1>FridgePlanner</h1>
+            </a>
+            
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="homepage.html"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                    <li><a href="caloriesmeter.html" class="active"><i class="fas fa-fire"></i> <span>Calories</span></a></li>
+                    <li><a href="recipe-generator.html"><i class="fas fa-utensils"></i> <span>Recipes</span></a></li>
+                    <li><a href="NutriPlus.html"><i  class="fas fa-leaf"></i> <span>NutriPlus</span></a></li>
+
+                    <li id="loginLi-disabled">
+                        <button class="btn-primary small-btn" id="navLoginBtn">Login</button>
+                    </li>
+                    
+                    <li id="profileLi-active" class="hidden">
+                        <div class="profile-menu">
+                            <button class="profile-btn" id="profileToggleBtn">
+                                <div class="profile-initials" id="userAvatar">U</div>
+                                <span id="userNameDisplay">Profile</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-content" id="profileDropdown">
+                                <div class="dropdown-header">
+                                    <p class="user-email">user@example.com</p>
+                                </div>
+                                <a href="homepage.html" ><i class="fas fa-heart"></i> Saved Recipes</a>
+                                <a href="homepage.html" ><i class="fas fa-calendar-alt"></i> My Plans</a>
+                                <hr style="margin: 0; border: 0; border-top: 1px solid #eee;">
+                                <a href="#" id="navSignOutBtn" class="sign-out"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero-card">
+            <div class="chart-container">
+                <canvas id="progressChart"></canvas>
+                <div class="chart-center-text">
+                    <h2 id="remainingCals">--</h2>
+                    <span>Left Today</span>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-item"><h4 id="totalEaten">0</h4><p>Eaten</p></div>
+                <div class="stat-item"><h4 id="totalBurned">0</h4><p>Burned</p></div>
+                <div class="stat-item">
+                    <h4 style="display:inline-flex; align-items:center;">
+                        <span id="dailyGoal">2000</span>
+                        <button class="edit-goal-btn" onclick="editGoal()" title="Edit Goal"><i class="fas fa-pen"></i></button>
+                    </h4>
+                    <p>Goal</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('food')">Food</button>
+                <button class="tab-btn" onclick="switchTab('exercise')">Exercise</button>
+            </div>
+            <div id="foodForm">
+                <div class="form-group"><label>Food Item</label><input type="text" id="foodName" placeholder="e.g., Apple"></div>
+                <div class="form-group"><label>Calories</label><input type="number" id="foodCalories" placeholder="kcal"></div>
+                <button class="action-btn btn-food" onclick="addFood()"><i class="fas fa-plus"></i> Add Food</button>
+            </div>
+            <div id="exerciseForm" class="hidden">
+                <div class="form-group"><label>Activity Type</label>
+                    <select id="activityType">
+                        <option value="running">Running</option>
+                        <option value="walking">Walking</option>
+                        <option value="cycling">Cycling</option>
+                        <option value="weights">Weightlifting</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Duration (Minutes)</label><input type="number" id="activityDuration" placeholder="30"></div>
+                <button class="action-btn btn-exercise" onclick="addActivity()"><i class="fas fa-fire"></i> Burn Calories</button>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h3>Today's Activity <span style="font-size:0.9rem; color:var(--text-muted)" id="currentDate"></span></h3>
+            <div id="logList"></div>
+        </div>
+    </div>
+
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-glass-card">
+            <button id="closeAuthModal" class="modal-close-btn"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><div class="icon-circle"><i class="fas fa-user-circle"></i></div><h2 id="authTitle">Welcome Back</h2><p id="authSubtitle">Please enter your details.</p></div>
+            <form id="authForm" class="auth-form">
+                <div class="input-container"><i class="fas fa-envelope input-icon"></i><input type="email" id="email" placeholder="Email Address" required></div>
+                <div class="input-container"><i class="fas fa-lock input-icon"></i><input type="password" id="password" placeholder="Password" required></div>
+                <div class="input-container hidden" id="nameInputGroup"><i class="fas fa-user input-icon"></i><input type="text" id="name" placeholder="Full Name"></div>
+                <button type="submit" id="submitAuthBtn" class="btn-submit">Log In</button>
+            </form>
+            <div class="modal-footer" style="margin-top: 1.5rem; color: #666; font-size: 0.9rem;"><p><span id="toggleAuthText">Don't have an account?</span> <button id="toggleAuthMode" style="background:none; border:none; color:var(--primary-rose); font-weight:bold; cursor:pointer; text-decoration:underline;">Create one</button></p><div id="authMessage" style="color: red; margin-top: 10px;"></div></div>
+        </div>
+    </div>
+
+    <div id="savedModal" class="modal-overlay">
+        <div class="modal-glass-card modal-large-card">
+            <button class="modal-close-btn" id="closeSavedModal"><i class="fas fa-times"></i></button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 1.5rem;"><h2><i class="fas fa-bookmark" style="color: #bf6b7a;"></i> My Cookbook</h2><p>Your collection of saved recipes.</p></div>
+            <div class="saved-recipes-container"></div>
+        </div>
+    </div>
+
+    <div id="planModal" class="modal-overlay">
+        <div class="modal-glass-card modal-large-card plan-glass-bg">
+            <button class="modal-close-btn" id="closePlanModal"><i class="fas fa-times"></i></button>
+            <div class="modal-header" style="text-align: center; margin-bottom: 1.5rem;"><h2><i class="fas fa-calendar-week" style="color: #bf6b7a;"></i> Weekly Plan</h2></div>
+            <div class="day-navigator">
+                <button class="day-nav-btn" id="prevDayBtn"><i class="fas fa-chevron-left"></i></button>
+                <h3 id="currentDayTitle">Monday</h3>
+                <button class="day-nav-btn" id="nextDayBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="day-editor">
+                <div class="editor-section morning"><label class="editor-label"><i class="fas fa-coffee"></i> Morning</label><textarea class="editor-textarea" id="morningInput" placeholder="Breakfast..."></textarea></div>
+                <div class="editor-section afternoon"><label class="editor-label"><i class="fas fa-sun"></i> Afternoon</label><textarea class="editor-textarea" id="afternoonInput" placeholder="Lunch..."></textarea></div>
+                <div class="editor-section evening"><label class="editor-label"><i class="fas fa-moon"></i> Evening</label><textarea class="editor-textarea" id="eveningInput" placeholder="Dinner..."></textarea></div>
+                <button class="btn-submit" id="saveDayBtn" style="grid-column: 1 / -1; margin-top: 1rem;">Save Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recipeDetailModal" class="modal-overlay">
+        <div class="modal-glass-card">
+            <button class="modal-close-btn" id="closeDetailModal" style="background: white; border:1px solid #eee;"><i class="fas fa-times"></i></button>
+            
+            <div class="recipe-detail-header" id="detailHeader">
+                <div class="recipe-detail-overlay">
+                    <h2 id="detailTitle">Recipe Title</h2>
+                    <span id="detailMeta"><i class="fas fa-fire"></i> 500 Kcal</span>
+                </div>
+            </div>
+
+            <div class="recipe-detail-content">
+                <div class="detail-grid">
+                    <div class="ingredients-box">
+                        <h3><i class="fas fa-carrot"></i> Ingredients</h3>
+                        <ul id="detailIngredients"></ul>
+                    </div>
+                    <div class="instructions-box">
+                        <h3><i class="fas fa-utensils"></i> Instructions</h3>
+                        <div id="detailInstructions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Entry Added!</div>
+
+<script>
+    // ================= CONFIGURATION =================
+    const SUPABASE_URL = 'https://dzdrduqwkfdznkqtjuai.supabase.co'; 
+    const SUPABASE_KEY = 'sb_publishable_eHdGsaJOPDvhoUL_1sipWw_RxFvhAy2';
+    const API_BASE_URL = 'http://localhost:5000/api'; 
+    
+    let supabaseClient;
+    try { if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch (e) { console.error("Supabase init error:", e); }
+
+    let chartInstance;
+    let currentGoalValue = 2000;
+    let currentUser = null;
+    let currentSession = null;
+    let isLoginMode = true;
+    let savedRecipesData = []; // Store recipes locally for modal
+
+    // ================= INITIALIZATION =================
+    document.addEventListener('DOMContentLoaded', async () => {
+        initChart();
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+        setupAuthListeners();
+        setupProfileDropdown();
+        setupModals();
+
+        if (supabaseClient) {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            handleSessionUpdate(session);
+            supabaseClient.auth.onAuthStateChange((_event, session) => handleSessionUpdate(session));
+        }
+    });
+
+    function handleSessionUpdate(session) {
+        currentSession = session;
+        currentUser = session ? session.user : null;
+        updateAuthUI(session);
+        if (currentUser) {
+            fetchData();
+        } else {
+            document.getElementById('totalEaten').textContent = "0";
+            document.getElementById('totalBurned').textContent = "0";
+            document.getElementById('logList').innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Please login to view data.</div>';
+        }
+    }
+
+    // AUTH HEADER FOR SERVER COMMUNICATION
+    function getAuthHeaders() {
+        if (!currentSession || !currentSession.access_token) return {};
+        return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` };
+    }
+
+    // ================= UI LOGIC =================
+    function updateAuthUI(session) {
+        const loginLi = document.getElementById('loginLi-disabled');
+        const profileLi = document.getElementById('profileLi-active');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userAvatar = document.getElementById('userAvatar');
+
+        if (session) {
+            loginLi.classList.add('hidden'); profileLi.classList.remove('hidden');
+            document.querySelector('.user-email').textContent = session.user.email;
+            
+            // Logic to get name
+            const metaName = session.user.user_metadata?.full_name;
+            const emailName = session.user.email.split('@')[0];
+            const finalName = metaName || emailName;
+            
+            if(userNameDisplay) userNameDisplay.textContent = finalName.charAt(0).toUpperCase() + finalName.slice(1);
+            if(userAvatar) userAvatar.textContent = finalName.charAt(0).toUpperCase();
+        } else {
+            loginLi.classList.remove('hidden'); profileLi.classList.add('hidden');
+        }
+    }
+
+    function setupProfileDropdown() {
+        const profileBtn = document.getElementById('profileToggleBtn');
+        const dropdown = document.getElementById('profileDropdown');
+        if(profileBtn) {
+            profileBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); dropdown.classList.toggle('show'); });
+            window.addEventListener('click', (e) => { if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.remove('show'); });
+        }
+    }
+
+    function setupModals() {
+        // Saved Recipes Modal
+        const savedBtn = document.getElementById('openSavedBtn');
+        const savedModal = document.getElementById('savedModal');
+        const closeSaved = document.getElementById('closeSavedModal');
+        if(savedBtn) savedBtn.addEventListener('click', (e) => { e.preventDefault(); savedModal.classList.add('open'); loadSavedRecipes(); });
+        if(closeSaved) closeSaved.addEventListener('click', () => savedModal.classList.remove('open'));
+
+        // Plan Modal
+        const planBtn = document.getElementById('openPlanBtn');
+        const planModal = document.getElementById('planModal');
+        const closePlan = document.getElementById('closePlanModal');
+        if(planBtn) planBtn.addEventListener('click', (e) => { e.preventDefault(); planModal.classList.add('open'); loadWeeklyPlan(); });
+        if(closePlan) closePlan.addEventListener('click', () => planModal.classList.remove('open'));
+
+        // Auth Modal
+        const closeAuth = document.getElementById('closeAuthModal');
+        const authModal = document.getElementById('authModal');
+        if(closeAuth) closeAuth.addEventListener('click', () => authModal.classList.remove('open'));
+
+        // Recipe Detail Modal
+        const detailModal = document.getElementById('recipeDetailModal');
+        const closeDetail = document.getElementById('closeDetailModal');
+        if(closeDetail) closeDetail.addEventListener('click', () => detailModal.classList.remove('open'));
+
+        window.addEventListener('click', (e) => {
+            if(e.target === savedModal) savedModal.classList.remove('open');
+            if(e.target === planModal) planModal.classList.remove('open');
+            if(e.target === authModal) authModal.classList.remove('open');
+            if(e.target === detailModal) detailModal.classList.remove('open');
+        });
+    }
+
+    // ================= DATA FETCHING (CALORIE) =================
+    async function fetchData() {
+        if (!currentUser) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/dashboard`, { headers: getAuthHeaders() });
+            if(!res.ok) throw new Error("Server error");
+            const data = await res.json();
+            renderUI(data);
+        } catch (e) { console.error(e); }
+    }
+
+    function renderUI(data) {
+        const foods = (data.foods || []); const activities = (data.activities || []); 
+        const goal = data.dailyGoal || 2000; currentGoalValue = goal;
+        
+        // Calculate Totals
+        const eaten = foods.reduce((acc, curr) => acc + (curr.calories || 0), 0);
+        const burned = activities.reduce((acc, curr) => acc + (curr.calories || 0), 0);
+        const remaining = goal - eaten + burned;
+
+        document.getElementById('totalEaten').textContent = eaten;
+        document.getElementById('totalBurned').textContent = burned;
+        document.getElementById('dailyGoal').textContent = goal;
+        document.getElementById('remainingCals').textContent = remaining;
+
+        // Chart Logic
+        const totalBudget = goal + burned;
+        const remainingForChart = Math.max(0, totalBudget - eaten);
+        chartInstance.data.datasets[0].data = [eaten, remainingForChart];
+        chartInstance.data.datasets[0].backgroundColor = (eaten > totalBudget) ? ['#e74c3c', '#eee'] : ['#bf6b7a', '#EEE'];
+        chartInstance.update();
+
+        // List Logic
+        const listContainer = document.getElementById('logList');
+        listContainer.innerHTML = '';
+        const allItems = [...foods.map(f => ({...f, type: 'food'})), ...activities.map(a => ({...a, type: 'activity'}))].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        if(allItems.length === 0) { listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No entries for today.</div>'; return; }
+
+        allItems.forEach(item => {
+            const isFood = item.type === 'food';
+            const icon = isFood ? 'utensils' : 'running';
+            const colorClass = isFood ? 'var(--primary-rose)' : 'var(--accent-green)';
+            const sign = isFood ? '+' : '-';
+            listContainer.innerHTML += `
+                <div class="log-item">
+                    <div class="log-left">
+                        <div class="log-icon" style="color:${colorClass}; background:${isFood ? '#FFF0F3' : '#F0F3EE'}"><i class="fas fa-${icon}"></i></div>
+                        <div class="log-info"><h5>${item.name || item.activityType || item.type}</h5><span>${new Date(item.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:15px;"><strong style="color:${colorClass}">${sign}${item.calories}</strong><button class="delete-btn" onclick="deleteItem('${item._id || item.id}', '${item.type}')"><i class="fas fa-trash"></i></button></div>
+                </div>
+            `;
+        });
+    }
+
+    // ================= ACTIONS =================
+    async function editGoal() {
+        if(!currentUser) return alert("Please login first");
+        const newGoal = prompt("Enter new Daily Calorie Goal:", currentGoalValue);
+        
+        if(newGoal && !isNaN(newGoal)) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/goal`, { 
+                    method: 'POST', 
+                    headers: getAuthHeaders(), 
+                    body: JSON.stringify({ goal: parseInt(newGoal) }) 
+                });
+                
+                if (res.ok) {
+                    fetchData(); 
+                    showToast("Goal Updated!");
+                } else {
+                    alert("Failed to update goal. Check server connection.");
+                }
+            } catch (error) {
+                console.error("Goal Update Error:", error);
+            }
+        }
+    }
+
+    async function addFood() {
+        if(!currentUser) return alert("Please login first");
+        const name = document.getElementById('foodName').value; const cals = document.getElementById('foodCalories').value;
+        if(!name || !cals) return alert("Please fill details");
+        await fetch(`${API_BASE_URL}/food`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ name, calories: cals, timestamp: new Date().toISOString() }) });
+        document.getElementById('foodName').value = ''; document.getElementById('foodCalories').value = ''; showToast("Food added!"); fetchData();
+    }
+    async function addActivity() {
+        if(!currentUser) return alert("Please login first");
+        const type = document.getElementById('activityType').value; const dur = document.getElementById('activityDuration').value;
+        if(!dur) return alert("Enter duration");
+        await fetch(`${API_BASE_URL}/activity`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ type, duration: dur, timestamp: new Date().toISOString() }) });
+        document.getElementById('activityDuration').value = ''; showToast("Workout logged!"); fetchData();
+    }
+    async function deleteItem(id, type) {
+        if(!currentUser) return;
+        if(!confirm("Remove this entry?")) return;
+        await fetch(`${API_BASE_URL}/delete`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ itemId: id, type }) });
+        fetchData();
+    }
+
+    // ================= PLANNER LOGIC =================
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    let currentDayIndex = 0;
+    let weeklyPlanData = { "Monday": {}, "Tuesday": {}, "Wednesday": {}, "Thursday": {}, "Friday": {}, "Saturday": {}, "Sunday": {} };
+
+    function setupDataHandling() {
+        document.getElementById('prevDayBtn').addEventListener('click', () => { updateLocalData(); currentDayIndex = (currentDayIndex - 1 + 7) % 7; renderDay(); });
+        document.getElementById('nextDayBtn').addEventListener('click', () => { updateLocalData(); currentDayIndex = (currentDayIndex + 1) % 7; renderDay(); });
+        document.getElementById('saveDayBtn').addEventListener('click', saveWeeklyPlanToDB);
+    }
+    function renderDay() {
+        const day = days[currentDayIndex];
+        document.getElementById('currentDayTitle').textContent = day;
+        document.getElementById('morningInput').value = weeklyPlanData[day].morning || "";
+        document.getElementById('afternoonInput').value = weeklyPlanData[day].afternoon || "";
+        document.getElementById('eveningInput').value = weeklyPlanData[day].evening || "";
+    }
+    function updateLocalData() {
+        const day = days[currentDayIndex];
+        weeklyPlanData[day] = {
+            morning: document.getElementById('morningInput').value,
+            afternoon: document.getElementById('afternoonInput').value,
+            evening: document.getElementById('eveningInput').value
+        };
+    }
+    async function loadWeeklyPlan() {
+        if(!currentSession) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/plan`, { headers: getAuthHeaders() });
+            if(res.ok) {
+                const data = await res.json();
+                data.forEach(p => weeklyPlanData[p.day] = p);
+                renderDay();
+            }
+        } catch(e) {}
+    }
+    async function saveWeeklyPlanToDB() {
+        updateLocalData();
+        const day = days[currentDayIndex];
+        const btn = document.getElementById('saveDayBtn');
+        btn.textContent = "Saving...";
+        try {
+            await fetch(`${API_BASE_URL}/plan`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ day, ...weeklyPlanData[day] }) });
+            showToast("Plan saved!");
+        } catch(e) { alert("Error saving."); }
+        finally { btn.textContent = "Save Plan"; }
+    }
+
+    // ================= SAVED RECIPES LOGIC =================
+    async function loadSavedRecipes() {
+        const list = document.querySelector('.saved-recipes-container');
+        if (!currentSession) { list.innerHTML = '<p style="padding:1rem; text-align:center;">Please login.</p>'; return; }
+        try {
+            const res = await fetch(`${API_BASE_URL}/recipes`, { headers: getAuthHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                savedRecipesData = data; // Store globally for access
+                if (data.length === 0) { list.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#888;">No saved recipes found.</p>'; return; }
+                
+                // ADDED: Buttons for Cook Now and Delete
+                list.innerHTML = data.map(recipe => `
+                    <div class="saved-card-premium">
+                        <img src="${recipe.image || 'https://via.placeholder.com/150'}" class="saved-card-img" alt="${recipe.title}">
+                        <div class="saved-card-content">
+                            <h4>${recipe.title}</h4>
+                            <div style="font-size:0.8rem; color:#666; margin-bottom:5px;"><span><i class="fas fa-fire"></i> ${recipe.calories || 'N/A'} Kcal</span></div>
+                            <div class="saved-card-actions">
+                                <button class="btn-view" onclick="openRecipeDetails('${recipe._id}')">
+                                    <i class="fas fa-utensils"></i> Cook Now
+                                </button>
+                                <button class="btn-delete-icon" onclick="deleteRecipe('${recipe._id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (err) { list.innerHTML = '<p style="color:red; text-align:center;">Failed to load.</p>'; }
+    }
+
+    // ADDED: Function to open recipe details
+    window.openRecipeDetails = (id) => {
+        const recipe = savedRecipesData.find(r => r._id === id);
+        if(!recipe) return;
+
+        document.getElementById('detailTitle').textContent = recipe.title;
+        document.getElementById('detailHeader').style.backgroundImage = `url('${recipe.image || 'https://via.placeholder.com/600'}')`;
+        document.getElementById('detailMeta').innerHTML = `<i class="fas fa-fire"></i> ${recipe.calories || 'Unknown'} Calories`;
+
+        const ingList = document.getElementById('detailIngredients');
+        if (recipe.ingredients && recipe.ingredients.length > 0) {
+            ingList.innerHTML = recipe.ingredients.map(ing => `<li>${ing}</li>`).join('');
+        } else {
+            ingList.innerHTML = `<li style="color:#999; font-style:italic;">(Ingredients data not found)</li>`;
+        }
+
+        const instBox = document.getElementById('detailInstructions');
+        if (recipe.instructions && recipe.instructions.length > 0) {
+            instBox.innerHTML = recipe.instructions.map((step, index) => `
+                <div class="instruction-step">
+                    <div class="step-num">${index + 1}</div>
+                    <div class="step-text">${step}</div>
+                </div>
+            `).join('');
+        } else {
+            instBox.innerHTML = `<div>Instructions unavailable.</div>`;
+        }
+        document.getElementById('recipeDetailModal').classList.add('open');
+    };
+
+    window.deleteRecipe = async (id) => {
+        if(!confirm("Remove this recipe from your cookbook?")) return;
+        try {
+            await fetch(`${API_BASE_URL}/recipes/delete`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ recipeId: id })
+            });
+            loadSavedRecipes(); 
+        } catch(e) { console.error(e); }
+    };
+
+    // ================= HELPER FUNCTIONS =================
+    function setupAuthListeners() {
+        const navLoginBtn = document.getElementById('navLoginBtn');
+        const navSignOutBtn = document.getElementById('navSignOutBtn');
+        const closeAuthModal = document.getElementById('closeAuthModal');
+        const toggleAuthMode = document.getElementById('toggleAuthMode');
+        const authForm = document.getElementById('authForm');
+        
+        if (navLoginBtn) navLoginBtn.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('authModal').classList.add('open'); });
+        if (navSignOutBtn) navSignOutBtn.addEventListener('click', async (e) => { e.preventDefault(); if(supabaseClient) await supabaseClient.auth.signOut(); });
+        if (closeAuthModal) closeAuthModal.addEventListener('click', () => document.getElementById('authModal').classList.remove('open'));
+        if (toggleAuthMode) toggleAuthMode.addEventListener('click', () => { 
+            isLoginMode = !isLoginMode; 
+            document.getElementById('authTitle').textContent = isLoginMode ? "Welcome Back" : "Create Account";
+            document.getElementById('submitAuthBtn').textContent = isLoginMode ? "Log In" : "Sign Up";
+            document.getElementById('toggleAuthText').textContent = isLoginMode ? "Don't have an account?" : "Already have an account?";
+            document.getElementById('toggleAuthMode').textContent = isLoginMode ? "Create one" : "Log In";
+            document.getElementById('nameInputGroup').classList.toggle('hidden', isLoginMode);
+        });
+        if (authForm) authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('submitAuthBtn');
+            const msg = document.getElementById('authMessage');
+            const fullName = document.getElementById('name').value;
+            btn.disabled = true; btn.textContent = 'Processing...'; msg.textContent = '';
+            try {
+                if (isLoginMode) {
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    document.getElementById('authModal').classList.remove('open');
+                } else {
+                    const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+                    if (error) throw error;
+                    msg.textContent = "Check email for confirmation!";
+                }
+            } catch (err) { msg.textContent = err.message; }
+            finally { btn.disabled = false; btn.textContent = isLoginMode ? 'Log In' : 'Sign Up'; }
+        });
+    }
+
+    function switchTab(tab) {
+        const foodForm = document.getElementById('foodForm');
+        const exerciseForm = document.getElementById('exerciseForm');
+        const btns = document.querySelectorAll('.tab-btn');
+        if (tab === 'food') {
+            foodForm.classList.remove('hidden'); exerciseForm.classList.add('hidden');
+            btns[0].classList.add('active'); btns[1].classList.remove('active');
+        } else {
+            foodForm.classList.add('hidden'); exerciseForm.classList.remove('hidden');
+            btns[0].classList.remove('active'); btns[1].classList.add('active');
+        }
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Eaten', 'Remaining'],
+                datasets: [{ data: [0, 100], backgroundColor: ['#bf6b7a', '#EEE'], borderWidth: 0, borderRadius: 20, cutout: '85%' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display:false}, tooltip: {enabled:false} } }
+        });
+    }
+</script>
+</body>
+</html>

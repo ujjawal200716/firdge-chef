@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "FridgeChef",
+    "slug": "fridge-chef",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.fridgechef.android",
+      "adaptiveIcon": {
+        "backgroundColor": "#08090C",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      },
+      "permissions": [
+        "android.permission.WAKE_LOCK",
+        "android.permission.VIBRATE"
+      ],
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
